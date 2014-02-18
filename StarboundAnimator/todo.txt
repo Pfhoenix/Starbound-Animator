@@ -1,0 +1,22 @@
+﻿TODO :
+
+removing an asset path needs to scan for loaded assets and check whether or not to unload them
+ - this is going to rely on a contentmanager, so that needs to be done first
+
+need a config file
+ - list of directories to scan for stock animation and frame files
+ - cached list of stock assets locations to quickly build asset tree
+
+need an option to refresh/rescan the assets lists
+ - right click menu in Assets tree should give the option to rescan (if root) or refresh (if not root)
+
+loading resources should happen whenever an asset is opened
+resources loaded by assets that aren't used by anything else should be unloaded
+
+need a project file format
+ - animations and frames can either be native to the project or referenced in-place
+
+allow user to change background color of render area
+
+need to support unpacking Starbound assets also
+ - when doing this, ask the user if they want to set the unpacking directory to the stock assets directory list
