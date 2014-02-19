@@ -148,6 +148,13 @@ namespace StarboundAnimator
 			CachedAssets.RemoveAt(i);
 		}
 
+		public string GetPathForTitle(string title)
+		{
+			CachedAsset ca = CachedAssets.Find(tca => title == tca.Title);
+			if (ca != null) return ca.Path;
+			else return "";
+		}
+
 		public string GetTitleForPath(string path)
 		{
 			CachedAsset ca = CachedAssets.Find(tca => string.Compare(tca.Path, path, true) == 0);

@@ -67,7 +67,7 @@ namespace StarboundAnimator
 						ca.Title = lvASP.Items[i].Text;
 						Globals.AppSettings.CachedAssets.Add(ca);
 						spf.StartScan(ca.Path);
-						Globals.AppForm.AddAssetPath(ca.Title, spf.Found);
+						Globals.AppForm.AddAssetPath(ca.Title, spf.Found, null);
 						ca.SetAssetsFromFoundList(spf.Found);
 						break;
 					}

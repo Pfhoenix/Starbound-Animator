@@ -32,15 +32,18 @@ namespace StarboundAnimator
 			Globals.AppSettings.ValidateSettings();
 			foreach (CachedAsset ca in Globals.AppSettings.CachedAssets)
 			{
-				AddAssetPath(ca.Title, ca.Assets);
+				AddAssetPath(ca.Title, ca.Assets, null);
 			}
         }
+
+
 
 		public void RemoveAssetGroupByTitle(string title)
 		{
 			for (int i = 0; i < tvAssets.Nodes.Count; i++)
 				if (tvAssets.Nodes[i].Text == title)
 				{
+					// need to go through all nodes to ensure animations and frames are unloaded properly
 					tvAssets.Nodes.RemoveAt(i--);
 					break;
 				}
@@ -58,30 +61,40 @@ namespace StarboundAnimator
 			}
 		}
 
-		public void AddAssetPath(string title, string path)
+		public List<string> AddAssetPath(string title, string path, TreeNode root)
 		{
 			if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
 			{
 				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
 				tvAssets.Nodes.Add(tn);
+				return new List<string>();
 			}
 			else
 			{
 				ScanPathForm spf = new ScanPathForm();
 				spf.StartScan(path);
 
-				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
-				tvAssets.Nodes.Add(tn);
-				if (spf.Found.Count > 0) AddAssetPath(title, spf.Found);
+				if (spf.Found.Count > 0)
+				{
+					AddAssetPath(title, spf.Found, root);
+					return spf.Found;
+				}
+				else
+				{
+					TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
+					tvAssets.Nodes.Add(tn);
+					return new List<string>();
+				}
 			}
 		}
 
-		public void AddAssetPath(string title, List<string> foundlist)
+		public void AddAssetPath(string title, List<string> foundlist, TreeNode root)
 		{
 			if ((foundlist == null) || (foundlist.Count == 0))
 			{
 				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
-				tvAssets.Nodes.Add(tn);
+				if (root != null) root.Nodes.Add(tn);
+				else tvAssets.Nodes.Add(tn);
 			}
 			else
 			{
@@ -90,7 +103,8 @@ namespace StarboundAnimator
 				foundlist.Sort();
 				List<TreeNode> curnodepath = new List<TreeNode>();
 				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
-				tvAssets.Nodes.Add(tn);
+				if (root != null) root.Nodes.Add(tn);
+				else tvAssets.Nodes.Add(tn);
 				curnodepath.Add(tn);
 				string[] split;
 				char[] splitchar = { '\\' };
@@ -121,7 +135,7 @@ namespace StarboundAnimator
 					int tni = 0;
 					if (split[split.Length - 1].EndsWith("animation")) tni = ASSET_IMAGELIST_ANIMATION;
 					else if (split[split.Length - 1].EndsWith("frames")) tni = ASSET_IMAGELIST_FRAMES;
-					curnodepath[curnodepath.Count - 1].Nodes.Add(new TreeNode(split[split.Length - 1], tni, tni));
+					curnodepath[curnodepath.Count - 1].Nodes.Add(new AssetTreeNode(split[split.Length - 1], tni, tni, null));
 				}
 
 				LockAssetTreeView(false);
@@ -170,10 +184,57 @@ namespace StarboundAnimator
 
 		private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			// wipe the root and refresh it from disk
 			if (tvAssets.SelectedNode.Parent == null)
 			{
+				string title = tvAssets.SelectedNode.Text;
+				string path = Globals.AppSettings.GetPathForTitle(tvAssets.SelectedNode.Text);
 
+				// change this to a proper unload+clear
+				TreeNode sn = tvAssets.SelectedNode;
+				tvAssets.SelectedNode = null;
+				tvAssets.Nodes.Remove(sn);
+				CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => title == tca.Title);
+				ca.Assets = AddAssetPath(title, path, null);
+			}
+			else if (tvAssets.SelectedNode.Text.EndsWith(".animation"))
+			{
+			}
+			else if (tvAssets.SelectedNode.Text.EndsWith(".frames"))
+			{
+			}
+			else
+			{
+				string title = tvAssets.SelectedNode.Text;
+				string path = "";
+				string root = "";
+
+				TreeNode tn = tvAssets.SelectedNode;
+				while (tn != null)
+				{
+					if (tn.Parent == null)
+					{
+						path = "\\" + path;
+						root = tn.Text;
+					}
+					else
+					{
+						if (path == "") path = tn.Text;
+						else path = tn.Text + '\\' + path;
+					}
+
+					tn = tn.Parent;
+				}
+
+				// change this to a proper unload+clear
+				TreeNode sn = tvAssets.SelectedNode;
+				TreeNode pn = sn.Parent;
+				tvAssets.SelectedNode = null;
+				tvAssets.Nodes.Remove(sn);
+				CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => root == tca.Title);
+				ca.Assets.RemoveAll(tca => tca.StartsWith(path + '\\'));
+				List<string> foundlist = AddAssetPath(title, ca.Path + path, pn);
+				int i = ca.Assets.IndexOf(ca.Path + path);
+				ca.Assets.InsertRange(i + 1, foundlist);
 			}
 		}
     }

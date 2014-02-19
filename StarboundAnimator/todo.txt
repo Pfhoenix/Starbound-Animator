@@ -1,5 +1,7 @@
 ﻿TODO :
 
+need a way to tie animation and frames objects to their representative TreeNodes
+
 removing an asset path needs to scan for loaded assets and check whether or not to unload them
  - this is going to rely on a contentmanager, so that needs to be done first
 
