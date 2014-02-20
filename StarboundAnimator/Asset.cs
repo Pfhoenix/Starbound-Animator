@@ -1,12 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace StarboundAnimator
 {
 	public abstract class Asset
 	{
-		public abstract Asset LoadFromFile(string path);
+		public string Source;
+
+		public Asset(string path)
+		{
+			LoadFromFile(path);
+		}
+
+		public abstract void LoadFromFile(string path);
 	}
 }

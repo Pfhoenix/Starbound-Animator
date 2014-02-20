@@ -1,13 +1,13 @@
 ﻿TODO :
 
-need a way to tie animation and frames objects to their representative TreeNodes
+need to start on reading/writing the JSON format for the files
 
 removing an asset path needs to scan for loaded assets and check whether or not to unload them
  - this is going to rely on a contentmanager, so that needs to be done first
 
-need a config file
- - list of directories to scan for stock animation and frame files
- - cached list of stock assets locations to quickly build asset tree
+tabSource needs to present two refresh options :
+ - refresh from file
+ - generate from editor
 
 need an option to refresh/rescan the assets lists
  - right click menu in Assets tree should give the option to rescan (if root) or refresh (if not root)

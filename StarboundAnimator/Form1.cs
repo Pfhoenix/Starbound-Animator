@@ -34,6 +34,9 @@ namespace StarboundAnimator
 			{
 				AddAssetPath(ca.Title, ca.Assets, null);
 			}
+			// load last project here
+
+			if (Globals.AppSettings.PathToLastProject == "") tabPages.SelectedTab = tabAssets;
         }
 
 
@@ -169,12 +172,35 @@ namespace StarboundAnimator
 			Globals.AppSettings.SaveSettings();
 		}
 
+		private string GetPathForNode(TreeNode tn)
+		{
+			string path = "";
+			string root = "";
+
+			while (tn != null)
+			{
+				if (tn.Parent == null)
+				{
+					path = "\\" + path;
+					root = tn.Text;
+				}
+				else
+				{
+					if (path == "") path = tn.Text;
+					else path = tn.Text + '\\' + path;
+				}
+
+				tn = tn.Parent;
+			}
+
+			CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => root == tca.Title);
+			if (ca != null) return ca.Path + path;
+			else return "";
+		}
+
 		private void tvAssets_MouseClick(object sender, MouseEventArgs e)
 		{
-			if (e.Button == MouseButtons.Left)
-			{
-			}
-			else if (e.Button == MouseButtons.Right)
+			if (e.Button == MouseButtons.Right)
 			{
 				TreeNode tn = tvAssets.GetNodeAt(e.X, e.Y);
 				tvAssets.SelectedNode = tn;
@@ -235,6 +261,53 @@ namespace StarboundAnimator
 				List<string> foundlist = AddAssetPath(title, ca.Path + path, pn);
 				int i = ca.Assets.IndexOf(ca.Path + path);
 				ca.Assets.InsertRange(i + 1, foundlist);
+			}
+		}
+
+		private void tvAssets_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			if (e.Node.Text.EndsWith(".frames"))
+			{
+				Frames frame = null;
+				if ((e.Node as AssetTreeNode).Asset != null)
+				{
+					frame = (e.Node as AssetTreeNode).Asset as Frames;
+				}
+				else
+				{
+					frame = new Frames(GetPathForNode(e.Node));
+					(e.Node as AssetTreeNode).Asset = frame;
+				}
+
+				tbSource.Text = frame.Source;
+
+				tabEditors.SelectedTab = tabSource;
+				tabEditors.Visible = true;
+			}
+			else if (e.Node.Text.EndsWith(".animation"))
+			{
+				Animation anim = null;
+				if ((e.Node as AssetTreeNode).Asset != null)
+				{
+					anim = (e.Node as AssetTreeNode).Asset as Animation;
+				}
+				else
+				{
+					anim = new Animation(GetPathForNode(e.Node));
+					(e.Node as AssetTreeNode).Asset = anim;
+				}
+
+				tbSource.Text = anim.Source;
+
+				tabEditors.SelectedTab = tabSource;
+				tabEditors.Visible = true;
+			}
+			else if (e.Node != null)
+			{
+				// clear out whatever was there
+
+				tabEditors.Visible = false;
+				tbSource.Text = "";
 			}
 		}
     }
