@@ -7,13 +7,18 @@ namespace StarboundAnimator
 {
 	public class Animation : Asset
 	{
-		public Animation(string path) : base(path) {}
-
-		public override void LoadFromFile(string path)
+		public static Animation LoadFromFile(string path)
 		{
-			Source = File.ReadAllText(path);
+			if (!File.Exists(path)) return null;
 
-			return;
+			string Source = File.ReadAllText(path);
+			int i = Source.IndexOf('\n');
+			if ((i == 0) || (Source[i - 1] != '\r')) Source = Source.Replace("\n", Environment.NewLine);
+
+			Animation a = new Animation();
+			a.Source = Source;
+
+			return a;
 		}
 	}
 }

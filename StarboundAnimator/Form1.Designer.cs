@@ -38,6 +38,12 @@
 			this.tvAssets = new System.Windows.Forms.TreeView();
 			this.imageList1 = new System.Windows.Forms.ImageList(this.components);
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+			this.tabWorkspace = new System.Windows.Forms.TabControl();
+			this.tabSource = new System.Windows.Forms.TabPage();
+			this.tbSource = new System.Windows.Forms.TextBox();
+			this.tabEditor = new System.Windows.Forms.TabPage();
+			this.pnlEditor = new StarboundAnimator.EditorPanel();
+			this.pgProperties = new System.Windows.Forms.PropertyGrid();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,12 +65,9 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.unpackStarboundAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.cmsAssets = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.tabEditors = new System.Windows.Forms.TabControl();
-			this.tabSource = new System.Windows.Forms.TabPage();
-			this.tabView = new System.Windows.Forms.TabPage();
-			this.tbSource = new System.Windows.Forms.TextBox();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
@@ -72,11 +75,13 @@
 			this.tabProject.SuspendLayout();
 			this.tabAssets.SuspendLayout();
 			this.splitContainer2.Panel1.SuspendLayout();
+			this.splitContainer2.Panel2.SuspendLayout();
 			this.splitContainer2.SuspendLayout();
+			this.tabWorkspace.SuspendLayout();
+			this.tabSource.SuspendLayout();
+			this.tabEditor.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.cmsAssets.SuspendLayout();
-			this.tabEditors.SuspendLayout();
-			this.tabSource.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// splitContainer1
@@ -149,6 +154,7 @@
 			// 
 			this.tvAssets.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.tvAssets.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tvAssets.HideSelection = false;
 			this.tvAssets.ImageIndex = 0;
 			this.tvAssets.ImageList = this.imageList1;
 			this.tvAssets.Location = new System.Drawing.Point(0, 0);
@@ -169,6 +175,10 @@
 			this.imageList1.Images.SetKeyName(3, "animation_bad.png");
 			this.imageList1.Images.SetKeyName(4, "frames.png");
 			this.imageList1.Images.SetKeyName(5, "frames_bad.png");
+			this.imageList1.Images.SetKeyName(6, "framegrid.png");
+			this.imageList1.Images.SetKeyName(7, "framelist.png");
+			this.imageList1.Images.SetKeyName(8, "frames_untested.png");
+			this.imageList1.Images.SetKeyName(9, "animation_untested.png");
 			// 
 			// splitContainer2
 			// 
@@ -180,16 +190,89 @@
 			// 
 			// splitContainer2.Panel1
 			// 
-			this.splitContainer2.Panel1.Controls.Add(this.tabEditors);
+			this.splitContainer2.Panel1.Controls.Add(this.tabWorkspace);
+			// 
+			// splitContainer2.Panel2
+			// 
+			this.splitContainer2.Panel2.Controls.Add(this.pgProperties);
 			this.splitContainer2.Size = new System.Drawing.Size(838, 677);
 			this.splitContainer2.SplitterDistance = 606;
 			this.splitContainer2.TabIndex = 0;
+			// 
+			// tabWorkspace
+			// 
+			this.tabWorkspace.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+			this.tabWorkspace.Controls.Add(this.tabSource);
+			this.tabWorkspace.Controls.Add(this.tabEditor);
+			this.tabWorkspace.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabWorkspace.Location = new System.Drawing.Point(0, 0);
+			this.tabWorkspace.Name = "tabWorkspace";
+			this.tabWorkspace.SelectedIndex = 0;
+			this.tabWorkspace.Size = new System.Drawing.Size(602, 673);
+			this.tabWorkspace.TabIndex = 0;
+			this.tabWorkspace.Visible = false;
+			// 
+			// tabSource
+			// 
+			this.tabSource.Controls.Add(this.tbSource);
+			this.tabSource.Location = new System.Drawing.Point(4, 4);
+			this.tabSource.Margin = new System.Windows.Forms.Padding(0);
+			this.tabSource.Name = "tabSource";
+			this.tabSource.Padding = new System.Windows.Forms.Padding(3);
+			this.tabSource.Size = new System.Drawing.Size(594, 647);
+			this.tabSource.TabIndex = 0;
+			this.tabSource.Text = "Source";
+			this.tabSource.UseVisualStyleBackColor = true;
+			// 
+			// tbSource
+			// 
+			this.tbSource.BackColor = System.Drawing.SystemColors.Window;
+			this.tbSource.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tbSource.Location = new System.Drawing.Point(3, 3);
+			this.tbSource.Margin = new System.Windows.Forms.Padding(0);
+			this.tbSource.MaxLength = 0;
+			this.tbSource.Multiline = true;
+			this.tbSource.Name = "tbSource";
+			this.tbSource.ReadOnly = true;
+			this.tbSource.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.tbSource.Size = new System.Drawing.Size(588, 641);
+			this.tbSource.TabIndex = 0;
+			// 
+			// tabEditor
+			// 
+			this.tabEditor.Controls.Add(this.pnlEditor);
+			this.tabEditor.Location = new System.Drawing.Point(4, 4);
+			this.tabEditor.Name = "tabEditor";
+			this.tabEditor.Padding = new System.Windows.Forms.Padding(3);
+			this.tabEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabEditor.TabIndex = 1;
+			this.tabEditor.Text = "Editor";
+			this.tabEditor.UseVisualStyleBackColor = true;
+			// 
+			// pnlEditor
+			// 
+			this.pnlEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pnlEditor.Location = new System.Drawing.Point(3, 3);
+			this.pnlEditor.Name = "pnlEditor";
+			this.pnlEditor.Size = new System.Drawing.Size(588, 641);
+			this.pnlEditor.TabIndex = 0;
+			// 
+			// pgProperties
+			// 
+			this.pgProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pgProperties.Location = new System.Drawing.Point(0, 0);
+			this.pgProperties.Name = "pgProperties";
+			this.pgProperties.PropertySort = System.Windows.Forms.PropertySort.NoSort;
+			this.pgProperties.Size = new System.Drawing.Size(224, 673);
+			this.pgProperties.TabIndex = 1;
+			this.pgProperties.ToolbarVisible = false;
 			// 
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.helpToolStripMenuItem});
+            this.helpToolStripMenuItem,
+            this.unpackStarboundAssetsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(1035, 24);
@@ -340,6 +423,14 @@
 			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.aboutToolStripMenuItem.Text = "&About";
 			// 
+			// unpackStarboundAssetsToolStripMenuItem
+			// 
+			this.unpackStarboundAssetsToolStripMenuItem.Enabled = false;
+			this.unpackStarboundAssetsToolStripMenuItem.Name = "unpackStarboundAssetsToolStripMenuItem";
+			this.unpackStarboundAssetsToolStripMenuItem.Size = new System.Drawing.Size(153, 20);
+			this.unpackStarboundAssetsToolStripMenuItem.Text = "Unpack Starbound Assets";
+			this.unpackStarboundAssetsToolStripMenuItem.Click += new System.EventHandler(this.unpackStarboundAssetsToolStripMenuItem_Click);
+			// 
 			// cmsAssets
 			// 
 			this.cmsAssets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -353,55 +444,6 @@
 			this.refreshToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.refreshToolStripMenuItem.Text = "Refresh";
 			this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
-			// 
-			// tabEditors
-			// 
-			this.tabEditors.Alignment = System.Windows.Forms.TabAlignment.Bottom;
-			this.tabEditors.Controls.Add(this.tabSource);
-			this.tabEditors.Controls.Add(this.tabView);
-			this.tabEditors.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tabEditors.Location = new System.Drawing.Point(0, 0);
-			this.tabEditors.Name = "tabEditors";
-			this.tabEditors.SelectedIndex = 0;
-			this.tabEditors.Size = new System.Drawing.Size(602, 673);
-			this.tabEditors.TabIndex = 0;
-			this.tabEditors.Visible = false;
-			// 
-			// tabSource
-			// 
-			this.tabSource.Controls.Add(this.tbSource);
-			this.tabSource.Location = new System.Drawing.Point(4, 4);
-			this.tabSource.Margin = new System.Windows.Forms.Padding(0);
-			this.tabSource.Name = "tabSource";
-			this.tabSource.Padding = new System.Windows.Forms.Padding(3);
-			this.tabSource.Size = new System.Drawing.Size(594, 647);
-			this.tabSource.TabIndex = 0;
-			this.tabSource.Text = "Source";
-			this.tabSource.UseVisualStyleBackColor = true;
-			// 
-			// tabView
-			// 
-			this.tabView.Location = new System.Drawing.Point(4, 4);
-			this.tabView.Name = "tabView";
-			this.tabView.Padding = new System.Windows.Forms.Padding(3);
-			this.tabView.Size = new System.Drawing.Size(594, 647);
-			this.tabView.TabIndex = 1;
-			this.tabView.Text = "View";
-			this.tabView.UseVisualStyleBackColor = true;
-			// 
-			// tbSource
-			// 
-			this.tbSource.BackColor = System.Drawing.SystemColors.Window;
-			this.tbSource.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tbSource.Location = new System.Drawing.Point(3, 3);
-			this.tbSource.Margin = new System.Windows.Forms.Padding(0);
-			this.tbSource.MaxLength = 0;
-			this.tbSource.Multiline = true;
-			this.tbSource.Name = "tbSource";
-			this.tbSource.ReadOnly = true;
-			this.tbSource.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.tbSource.Size = new System.Drawing.Size(588, 641);
-			this.tbSource.TabIndex = 0;
 			// 
 			// Form1
 			// 
@@ -421,13 +463,15 @@
 			this.tabProject.ResumeLayout(false);
 			this.tabAssets.ResumeLayout(false);
 			this.splitContainer2.Panel1.ResumeLayout(false);
+			this.splitContainer2.Panel2.ResumeLayout(false);
 			this.splitContainer2.ResumeLayout(false);
+			this.tabWorkspace.ResumeLayout(false);
+			this.tabSource.ResumeLayout(false);
+			this.tabSource.PerformLayout();
+			this.tabEditor.ResumeLayout(false);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.cmsAssets.ResumeLayout(false);
-			this.tabEditors.ResumeLayout(false);
-			this.tabSource.ResumeLayout(false);
-			this.tabSource.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -466,10 +510,13 @@
 		private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
 		private System.Windows.Forms.ContextMenuStrip cmsAssets;
 		private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
-		private System.Windows.Forms.TabControl tabEditors;
+		private System.Windows.Forms.TabControl tabWorkspace;
 		private System.Windows.Forms.TabPage tabSource;
 		private System.Windows.Forms.TextBox tbSource;
-		private System.Windows.Forms.TabPage tabView;
+		private System.Windows.Forms.TabPage tabEditor;
+		private System.Windows.Forms.PropertyGrid pgProperties;
+		private System.Windows.Forms.ToolStripMenuItem unpackStarboundAssetsToolStripMenuItem;
+		private EditorPanel pnlEditor;
     }
 }
 

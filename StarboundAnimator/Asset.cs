@@ -6,11 +6,9 @@ namespace StarboundAnimator
 	{
 		public string Source;
 
-		public Asset(string path)
+		public Asset()
 		{
-			LoadFromFile(path);
+			Source = "";
 		}
-
-		public abstract void LoadFromFile(string path);
 	}
 }

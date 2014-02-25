@@ -17,6 +17,14 @@ namespace StarboundAnimator
 		public const int ASSET_IMAGELIST_ANIMATIONBAD = 3;
 		public const int ASSET_IMAGELIST_FRAMES = 4;
 		public const int ASSET_IMAGELIST_FRAMESBAD = 5;
+		public const int ASSET_IMAGELIST_FRAMEGRID = 6;
+		public const int ASSET_IMAGELIST_FRAMELIST = 7;
+		public const int ASSET_IMAGELIST_FRAMESUNTESTED = 8;
+		public const int ASSET_IMAGELIST_ANIMATIONUNTESTED = 9;
+
+
+		public FramesProperties FramesProperties = new FramesProperties();
+
 
         public Form1()
         {
@@ -91,6 +99,7 @@ namespace StarboundAnimator
 			}
 		}
 
+
 		public void AddAssetPath(string title, List<string> foundlist, TreeNode root)
 		{
 			if ((foundlist == null) || (foundlist.Count == 0))
@@ -121,7 +130,14 @@ namespace StarboundAnimator
 						if (curnodepath.Count == j)
 						{
 							tn = new TreeNode(split[j], ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
-							curnodepath[curnodepath.Count - 1].Nodes.Add(tn);
+							TreeNode pn = curnodepath[curnodepath.Count - 1];
+							int n = 0;
+							for (n = pn.Nodes.Count - 1; n >= 0; n--)
+							{
+								if (!(pn.Nodes[n] is AssetTreeNode)) break;
+							}
+							if (n == pn.Nodes.Count - 1) pn.Nodes.Add(tn);
+							else pn.Nodes.Insert(n + 1, tn);
 							curnodepath.Add(tn);
 						}
 						// node doesn't match
@@ -134,10 +150,16 @@ namespace StarboundAnimator
 						}
 					}
 
+					// in case we dropped to a shorter path
+					if (split.Length <= curnodepath.Count)
+					{
+						curnodepath.RemoveRange(split.Length - 1, curnodepath.Count - split.Length + 1);
+					}
+
 					// adjust this to set animation or frame image
 					int tni = 0;
-					if (split[split.Length - 1].EndsWith("animation")) tni = ASSET_IMAGELIST_ANIMATION;
-					else if (split[split.Length - 1].EndsWith("frames")) tni = ASSET_IMAGELIST_FRAMES;
+					if (split[split.Length - 1].EndsWith("animation")) tni = ASSET_IMAGELIST_ANIMATIONUNTESTED;
+					else if (split[split.Length - 1].EndsWith("frames")) tni = ASSET_IMAGELIST_FRAMESUNTESTED;
 					curnodepath[curnodepath.Count - 1].Nodes.Add(new AssetTreeNode(split[split.Length - 1], tni, tni, null));
 				}
 
@@ -151,18 +173,18 @@ namespace StarboundAnimator
 			else tvAssets.EndUpdate();
 		}
 
-		private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+		void settingsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SettingsForm sf = new SettingsForm();
 			sf.ShowDialog();
 		}
 
-		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Close();
 		}
 
-		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+		void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			Globals.AppSettings.WindowWidth = Width;
 			Globals.AppSettings.WindowHeight = Height;
@@ -172,7 +194,47 @@ namespace StarboundAnimator
 			Globals.AppSettings.SaveSettings();
 		}
 
-		private string GetPathForNode(TreeNode tn)
+		void SetWorkingFrames(Frames frame)
+		{
+			if (Globals.WorkingFrames != null) UnsetWorkingFrames();
+			if (Globals.WorkingAnimation != null) UnsetWorkingAnimation();
+
+			Globals.WorkingFrames = frame;
+			tbSource.Text = frame.Source;
+			FramesProperties.InitForFrames(frame);
+			pgProperties.SelectedObject = FramesProperties;
+		}
+
+		void UnsetWorkingFrames()
+		{
+			if (Globals.WorkingFrames != null)
+			{
+				pgProperties.SelectedObject = null;
+				FramesProperties.Frame = null;
+				Globals.WorkingFrames = null;
+				tbSource.Text = "";
+			}
+		}
+
+		void SetWorkingAnimation(Animation anim)
+		{
+			if (Globals.WorkingFrames != null) UnsetWorkingFrames();
+			if (Globals.WorkingAnimation != null) UnsetWorkingAnimation();
+
+			Globals.WorkingAnimation = anim;
+			tbSource.Text = anim.Source;
+		}
+
+		void UnsetWorkingAnimation()
+		{
+			if (Globals.WorkingAnimation != null)
+			{
+				Globals.WorkingAnimation = null;
+				tbSource.Text = "";
+			}
+		}
+
+		string GetPathForNode(TreeNode tn)
 		{
 			string path = "";
 			string root = "";
@@ -268,21 +330,74 @@ namespace StarboundAnimator
 		{
 			if (e.Node.Text.EndsWith(".frames"))
 			{
+				UnsetWorkingAnimation();
+
 				Frames frame = null;
 				if ((e.Node as AssetTreeNode).Asset != null)
 				{
 					frame = (e.Node as AssetTreeNode).Asset as Frames;
+					pgProperties.SelectedObject = frame;
 				}
 				else
 				{
-					frame = new Frames(GetPathForNode(e.Node));
-					(e.Node as AssetTreeNode).Asset = frame;
+					string framepath = GetPathForNode(e.Node);
+					frame = Frames.LoadFromFile(framepath);
+					if (frame != null)
+					{
+						(e.Node as AssetTreeNode).Asset = frame;
+						e.Node.ImageIndex = ASSET_IMAGELIST_FRAMES;
+						e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMES;
+
+						if (string.IsNullOrEmpty(frame.image))
+						{
+							string imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length);
+							string imagename = Path.GetFileNameWithoutExtension(framepath) + ".png";
+							if (File.Exists(imagepath + imagename))
+							{
+								DialogResult dr = MessageBox.Show("Image is unset! Do you want to try using " + imagename + "?", "Missing image", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+								if (dr == DialogResult.Yes)
+								{
+									frame.image = imagename;
+									frame.Img = Image.FromFile(imagepath + imagename);
+								}
+								else
+								{
+									int w = frame.frameGrid.size[0] * frame.frameGrid.dimensions[0];
+									int h = frame.frameGrid.size[1] * frame.frameGrid.dimensions[1];
+									if ((w > 0) && (h > 0))
+									{
+										Bitmap bmp = new Bitmap(w, h);
+										using (Graphics graph = Graphics.FromImage(bmp))
+										{
+											Rectangle ImageSize = new Rectangle(0, 0, w, h);
+											graph.FillRectangle(Brushes.White, ImageSize);
+										}
+										frame.Img = bmp;
+									}
+								}
+							}
+						}
+						else
+						{
+							// load the referenced image
+							// going to have issues with images using relative paths
+						}
+
+						pgProperties.SelectedObject = frame;
+					}
+					else
+					{
+						e.Node.ImageIndex = ASSET_IMAGELIST_FRAMESBAD;
+						e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMESBAD;
+					}
 				}
 
-				tbSource.Text = frame.Source;
+				if (frame != null) SetWorkingFrames(frame);
+				else tbSource.Text = "";
 
-				tabEditors.SelectedTab = tabSource;
-				tabEditors.Visible = true;
+				if (tabWorkspace.SelectedTab == tabEditor) tabEditor.Invalidate();
+				else tabWorkspace.SelectedTab = tabEditor;
+				tabWorkspace.Visible = true;
 			}
 			else if (e.Node.Text.EndsWith(".animation"))
 			{
@@ -293,22 +408,41 @@ namespace StarboundAnimator
 				}
 				else
 				{
-					anim = new Animation(GetPathForNode(e.Node));
+					anim = Animation.LoadFromFile(GetPathForNode(e.Node));
+					//anim = new Animation(GetPathForNode(e.Node));
 					(e.Node as AssetTreeNode).Asset = anim;
 				}
 
-				tbSource.Text = anim.Source;
+				if (anim != null) SetWorkingAnimation(anim);
+				else tbSource.Text = "";
 
-				tabEditors.SelectedTab = tabSource;
-				tabEditors.Visible = true;
+				tabWorkspace.SelectedTab = tabSource;
+				tabWorkspace.Visible = true;
 			}
 			else if (e.Node != null)
 			{
 				// clear out whatever was there
 
-				tabEditors.Visible = false;
+				tabWorkspace.Visible = false;
 				tbSource.Text = "";
 			}
+		}
+
+		private void unpackStarboundAssetsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			/* check registry for Steam install location
+			if exists, check for File.Exists("Steam/Steamapps/common/Starbound/Win32/asset_unpacker.exe")
+			{
+			}
+			else
+			{
+				prompt for location of starbound directory
+				if !File.Exists(asset_unpacker.exe) MessageBox.Show("you're an idiot");
+			}
+			open up find directory dialog to select where to unpack assets to
+			have to ensure that selected directory is empty
+			run asset_unpacker with appropriate selected settings
+			*/
 		}
     }
 }

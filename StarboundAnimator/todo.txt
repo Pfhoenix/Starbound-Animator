@@ -1,6 +1,25 @@
 ﻿TODO :
 
+if using frameGrid, draw the grid
+when drawing the grid, need to write names that use that grid
+ - different name sources need to be colored
+
+need a checkbox button for drawing frameGrid or frameList
+ - these toggle one or the other like radiobuttons
+
+need a textbox for when mouse passes over a frame
+ - display name of frame, clicking should allow renaming of frame and resizing (if frameList)
+
+need to figure out the best way to edit the names member
+ - fucking multi-dimensional arrays.
+
+need to figure out how to smartly edit frameList and aliases
+
 need to start on reading/writing the JSON format for the files
+ - it appears that there are multiple methods to define sprites with .frames files
+   - need to figure out how to unify the definition methods to a single native implementation
+
+when changing the image name in properties, need to load the new image name
 
 removing an asset path needs to scan for loaded assets and check whether or not to unload them
  - this is going to rely on a contentmanager, so that needs to be done first
@@ -22,3 +41,7 @@ allow user to change background color of render area
 
 need to support unpacking Starbound assets also
  - when doing this, ask the user if they want to set the unpacking directory to the stock assets directory list
+
+need to have zooming change the center of the screen (affect translation)
+
+I also don't like the current VScrollBar. Make it look like a slider, damnit.

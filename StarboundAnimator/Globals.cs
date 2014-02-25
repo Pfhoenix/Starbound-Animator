@@ -9,5 +9,7 @@ namespace StarboundAnimator
 		public static Form1 AppForm;
 		public static string AppPath;
 		public static Settings AppSettings;
+		public static Frames WorkingFrames;
+		public static Animation WorkingAnimation;
 	}
 }
