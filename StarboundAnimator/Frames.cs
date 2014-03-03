@@ -7,40 +7,44 @@ using Newtonsoft.Json;
 
 namespace StarboundAnimator
 {
-	public enum EFrameSource { FS_Default, FS_Name, FS_Alias };
+	public class _frameName
+	{
+		public string name;
+		public byte source;
+		public string aliasof;
+
+		public _frameName(string n, byte s, string ao)
+		{
+			name = n;
+			source = s;
+			aliasof = ao;
+		}
+	}
 
 	public class _frameItem
 	{
-		public EFrameSource source;
+		public List<_frameName> names = new List<_frameName>();
 		public int x, y;
 		public int width, height;
 
-		public readonly bool bCopied;
-
 		public _frameItem() { }
 
-		public _frameItem(int X, int Y, int W, int H, EFrameSource S)
+		public _frameItem(int X, int Y, int W, int H)
 		{
 			x = X;
 			y = Y;
 			width = W;
 			height = H;
-			source = S;
 		}
 
-		private _frameItem(int X, int Y, int W, int H, EFrameSource S, bool bC)
+		public void AddName(string n, byte s, string ao = "")
 		{
-			x = X;
-			y = Y;
-			width = W;
-			height = H;
-			source = S;
-			bCopied = bC;
+			names.Add(new _frameName(n, s, ao));
 		}
 
-		public _frameItem Copy()
+		public void RemoveName(string n)
 		{
-			return new _frameItem(x, y, width, height, source, true);
+			names.RemoveAll(fn => fn.name == n);
 		}
 	}
 
@@ -48,7 +52,7 @@ namespace StarboundAnimator
 	{
 		public List<int> size = new List<int>();
 		public List<int> dimensions = new List<int>();
-		public List<List<string>> names = new List<List<string>>();
+		public List<List<string>> names;// = new List<List<string>>();
 	}
 
 	public class Frames : Asset
@@ -62,7 +66,9 @@ namespace StarboundAnimator
 		[NonSerialized]
 		public Image Img;
 		[NonSerialized]
-		public Dictionary<string, _frameItem> FrameItems = new Dictionary<string, _frameItem>();
+		public Dictionary<string, _frameItem> LookupFrameItems = new Dictionary<string, _frameItem>();
+		[NonSerialized]
+		public List<_frameItem> ListFrameItems = new List<_frameItem>();
 
 
 		public Frames()
@@ -81,6 +87,23 @@ namespace StarboundAnimator
 			if (frame != null)
 			{
 				frame.Source = Source;
+				// sanity check loaded data
+				if (frame.frameGrid != null)
+				{
+					if (frame.frameGrid.size.Count == 0) frame.frameGrid = null;
+					else if (frame.frameGrid.size.Count == 1) frame.frameGrid.size.Add(1);
+					else frame.frameGrid.size.RemoveRange(2, frame.frameGrid.size.Count - 2);
+				}
+				if (frame.frameGrid != null)
+				{
+					if (frame.frameGrid.dimensions.Count == 0) frame.frameGrid = null;
+					else if (frame.frameGrid.dimensions.Count == 1) frame.frameGrid.dimensions.Add(1);
+					else frame.frameGrid.dimensions.RemoveRange(2, frame.frameGrid.dimensions.Count - 2);
+				}
+				if ((frame.frameGrid != null) && (frame.frameGrid.names != null))
+				{
+					if (frame.frameGrid.names.Count == 0) frame.frameGrid.names = null;
+				}
 			}
 
 			frame.RecalcFrameItems();
@@ -90,47 +113,78 @@ namespace StarboundAnimator
 
 		public void RecalcFrameItems()
 		{
-			FrameItems.Clear();
+			LookupFrameItems.Clear();
+			ListFrameItems.Clear();
 			_frameItem item = null;
 			if (frameGrid != null)
 			{
+				string name;
 				for (int j = 0; j < frameGrid.dimensions[1]; j++)
 					for (int i = 0; i < frameGrid.dimensions[0]; i++)
 					{
-						item = new _frameItem(i * frameGrid.size[0], j * frameGrid.size[1], frameGrid.size[0], frameGrid.size[1], EFrameSource.FS_Default);
-						FrameItems.Add((i + j * frameGrid.dimensions[1]).ToString(), item);
+						name = (i + j * frameGrid.dimensions[0]).ToString();
+						item = new _frameItem(i * frameGrid.size[0], j * frameGrid.size[1], frameGrid.size[0], frameGrid.size[1]);
+						item.AddName(name, Globals.FrameSource_Grid);
+						LookupFrameItems.Add(name, item);
+						ListFrameItems.Add(item);
 					}
 
-				for (int j = 0; j < frameGrid.names.Count; j++)
-					for (int i = 0; i < frameGrid.names[j].Count; i++)
-					{
-						if (string.IsNullOrEmpty(frameGrid.names[j][i])) continue;
-						if (FrameItems.ContainsKey(frameGrid.names[j][i])) continue;
-						if ((i < frameGrid.dimensions[0]) && (j < frameGrid.dimensions[1]))
+				if (frameGrid.names != null)
+				{
+					for (int j = 0; j < frameGrid.names.Count; j++)
+						for (int i = 0; i < frameGrid.names[j].Count; i++)
 						{
-							item = FrameItems[(i + j * frameGrid.dimensions[1]).ToString()].Copy();
-							item.source = EFrameSource.FS_Name;
+							if (string.IsNullOrEmpty(frameGrid.names[j][i])) continue;
+							if (LookupFrameItems.ContainsKey(frameGrid.names[j][i])) continue;
+
+							name = frameGrid.names[j][i];
+							if ((i < frameGrid.dimensions[0]) && (j < frameGrid.dimensions[1]))
+							{
+								item = LookupFrameItems[(i + j * frameGrid.dimensions[0]).ToString()];
+							}
+							else
+							{
+								item = new _frameItem(i * frameGrid.size[0], j * frameGrid.size[1], frameGrid.size[0], frameGrid.size[1]);
+								ListFrameItems.Add(item);
+							}
+							LookupFrameItems.Add(name, item);
+							item.AddName(name, Globals.FrameSource_Name);
 						}
-						else
-						{
-							item = new _frameItem(i * frameGrid.size[0], j * frameGrid.size[1], frameGrid.size[0], frameGrid.size[1], EFrameSource.FS_Name);
-						}
-						FrameItems.Add(frameGrid.names[j][i], item);
-					}
+				}
 			}
 
 			if (aliases != null)
 			{
 				foreach (KeyValuePair<string, string> entry in aliases)
 				{
-					if (FrameItems.ContainsKey(entry.Key)) continue;
-					if (!FrameItems.ContainsKey(entry.Value)) continue;
+					if (LookupFrameItems.ContainsKey(entry.Key)) continue;
+					if (!LookupFrameItems.ContainsKey(entry.Value)) continue;
 
-					item = FrameItems[entry.Value].Copy();
-					item.source = EFrameSource.FS_Alias;
-					FrameItems.Add(entry.Key, item);
+					item = LookupFrameItems[entry.Value];
+					item.AddName(entry.Key, Globals.FrameSource_Alias, entry.Value);
+					LookupFrameItems.Add(entry.Key, item);
 				}
 			}
+		}
+
+		public _frameItem GetItemUnder(int x, int y, byte sourceflags)
+		{
+			foreach (_frameItem fi in ListFrameItems)
+			{
+				if ((x >= fi.x) && (x <= fi.x + fi.width) &&
+					(y >= fi.y) && (y <= fi.y + fi.height))
+				{
+					foreach (_frameName fn in fi.names)
+					{
+						if ((sourceflags & fn.source) > 0)
+						{
+							return fi;
+						}
+					}
+				}
+			}
+
+			return null;
 		}
 	}
 

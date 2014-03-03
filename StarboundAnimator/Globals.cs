@@ -11,5 +11,13 @@ namespace StarboundAnimator
 		public static Settings AppSettings;
 		public static Frames WorkingFrames;
 		public static Animation WorkingAnimation;
+
+		public const int FrameSource_None = 0;
+		public const int FrameSource_Grid = 1;
+		public const int FrameSource_Name = 2;
+		public const int FrameSource_Alias = 4;
+		public const int FrameSource_List = 8;
+		public const int FrameSource_All = 15;
+
 	}
 }

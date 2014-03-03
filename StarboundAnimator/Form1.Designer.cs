@@ -42,7 +42,6 @@
 			this.tabSource = new System.Windows.Forms.TabPage();
 			this.tbSource = new System.Windows.Forms.TextBox();
 			this.tabEditor = new System.Windows.Forms.TabPage();
-			this.pnlEditor = new StarboundAnimator.EditorPanel();
 			this.pgProperties = new System.Windows.Forms.PropertyGrid();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,6 +67,10 @@
 			this.unpackStarboundAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.cmsAssets = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pnlEditor = new StarboundAnimator.EditorPanel();
+			this.OFD = new System.Windows.Forms.OpenFileDialog();
+			this.SFD = new System.Windows.Forms.SaveFileDialog();
+			this.btnImage = new System.Windows.Forms.Button();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
@@ -82,6 +85,7 @@
 			this.tabEditor.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.cmsAssets.SuspendLayout();
+			this.pnlEditor.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// splitContainer1
@@ -240,6 +244,7 @@
 			// 
 			// tabEditor
 			// 
+			this.tabEditor.BackColor = System.Drawing.Color.Black;
 			this.tabEditor.Controls.Add(this.pnlEditor);
 			this.tabEditor.Location = new System.Drawing.Point(4, 4);
 			this.tabEditor.Name = "tabEditor";
@@ -247,15 +252,6 @@
 			this.tabEditor.Size = new System.Drawing.Size(594, 647);
 			this.tabEditor.TabIndex = 1;
 			this.tabEditor.Text = "Editor";
-			this.tabEditor.UseVisualStyleBackColor = true;
-			// 
-			// pnlEditor
-			// 
-			this.pnlEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pnlEditor.Location = new System.Drawing.Point(3, 3);
-			this.pnlEditor.Name = "pnlEditor";
-			this.pnlEditor.Size = new System.Drawing.Size(588, 641);
-			this.pnlEditor.TabIndex = 0;
 			// 
 			// pgProperties
 			// 
@@ -266,6 +262,7 @@
 			this.pgProperties.Size = new System.Drawing.Size(224, 673);
 			this.pgProperties.TabIndex = 1;
 			this.pgProperties.ToolbarVisible = false;
+			this.pgProperties.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.pgProperties_PropertyValueChanged);
 			// 
 			// menuStrip1
 			// 
@@ -445,6 +442,28 @@
 			this.refreshToolStripMenuItem.Text = "Refresh";
 			this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
 			// 
+			// pnlEditor
+			// 
+			this.pnlEditor.Controls.Add(this.btnImage);
+			this.pnlEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pnlEditor.Location = new System.Drawing.Point(3, 3);
+			this.pnlEditor.Name = "pnlEditor";
+			this.pnlEditor.Size = new System.Drawing.Size(588, 641);
+			this.pnlEditor.TabIndex = 0;
+			// 
+			// OFD
+			// 
+			this.OFD.FileName = "openFileDialog1";
+			// 
+			// btnImage
+			// 
+			this.btnImage.Location = new System.Drawing.Point(3, 615);
+			this.btnImage.Name = "btnImage";
+			this.btnImage.Size = new System.Drawing.Size(75, 23);
+			this.btnImage.TabIndex = 6;
+			this.btnImage.Text = "button1";
+			this.btnImage.UseVisualStyleBackColor = true;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -472,6 +491,8 @@
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.cmsAssets.ResumeLayout(false);
+			this.pnlEditor.ResumeLayout(false);
+			this.pnlEditor.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -517,6 +538,9 @@
 		private System.Windows.Forms.PropertyGrid pgProperties;
 		private System.Windows.Forms.ToolStripMenuItem unpackStarboundAssetsToolStripMenuItem;
 		private EditorPanel pnlEditor;
+		private System.Windows.Forms.OpenFileDialog OFD;
+		private System.Windows.Forms.SaveFileDialog SFD;
+		private System.Windows.Forms.Button btnImage;
     }
 }
 

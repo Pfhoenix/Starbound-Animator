@@ -1,14 +1,21 @@
 ﻿TODO :
 
-if using frameGrid, draw the grid
-when drawing the grid, need to write names that use that grid
- - different name sources need to be colored
+control boxes for the frameList frames only
 
-need a checkbox button for drawing frameGrid or frameList
- - these toggle one or the other like radiobuttons
+need to allow clicking and dragging of control boxes where appropriate
+ - on frameitem
 
-need a textbox for when mouse passes over a frame
- - display name of frame, clicking should allow renaming of frame and resizing (if frameList)
+need a context menu popup to add/change/remove frames by right clicking on a frame
+
+need to sort out changing frameGrid properties populating back to the frames object
+
+need to add an image button to allow setting an arbitrary image for a background
+
+need to implement processing List source frames from JSON and throughout editor code
+
+what about using different colors for the rects around frameitems based on source?
+
+when editing frames, it's important that aliases don't desync with what they're aliasing
 
 need to figure out the best way to edit the names member
  - fucking multi-dimensional arrays.

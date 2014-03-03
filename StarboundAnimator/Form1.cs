@@ -203,6 +203,7 @@ namespace StarboundAnimator
 			tbSource.Text = frame.Source;
 			FramesProperties.InitForFrames(frame);
 			pgProperties.SelectedObject = FramesProperties;
+			pnlEditor.UpdateFrameShowButtons(true);
 		}
 
 		void UnsetWorkingFrames()
@@ -214,6 +215,8 @@ namespace StarboundAnimator
 				Globals.WorkingFrames = null;
 				tbSource.Text = "";
 			}
+
+			pnlEditor.UpdateFrameShowButtons(false);
 		}
 
 		void SetWorkingAnimation(Animation anim)
@@ -360,27 +363,48 @@ namespace StarboundAnimator
 									frame.image = imagename;
 									frame.Img = Image.FromFile(imagepath + imagename);
 								}
-								else
-								{
-									int w = frame.frameGrid.size[0] * frame.frameGrid.dimensions[0];
-									int h = frame.frameGrid.size[1] * frame.frameGrid.dimensions[1];
-									if ((w > 0) && (h > 0))
-									{
-										Bitmap bmp = new Bitmap(w, h);
-										using (Graphics graph = Graphics.FromImage(bmp))
-										{
-											Rectangle ImageSize = new Rectangle(0, 0, w, h);
-											graph.FillRectangle(Brushes.White, ImageSize);
-										}
-										frame.Img = bmp;
-									}
-								}
 							}
 						}
 						else
 						{
 							// load the referenced image
 							// going to have issues with images using relative paths
+
+							string imagepath = "";
+
+							if (frame.image.Contains("/"))
+							{
+							}
+							else
+							{
+								imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length) + frame.image;
+							}
+
+							frame.Img = Image.FromFile(imagepath);
+						}
+
+						if (frame.Img == null)
+						{
+							int w = 0;
+							int h = 0;
+							if (frame.frameGrid != null)
+							{
+								w = frame.frameGrid.size[0] * frame.frameGrid.dimensions[0];
+								h = frame.frameGrid.size[1] * frame.frameGrid.dimensions[1];
+							}
+							else if (frame.frameList != null)
+							{
+							}
+							if ((w > 0) && (h > 0))
+							{
+								Bitmap bmp = new Bitmap(w, h);
+								using (Graphics graph = Graphics.FromImage(bmp))
+								{
+									Rectangle ImageSize = new Rectangle(0, 0, w, h);
+									graph.FillRectangle(Brushes.Black, ImageSize);
+								}
+								frame.Img = bmp;
+							}
 						}
 
 						pgProperties.SelectedObject = frame;
@@ -443,6 +467,11 @@ namespace StarboundAnimator
 			have to ensure that selected directory is empty
 			run asset_unpacker with appropriate selected settings
 			*/
+		}
+
+		private void pgProperties_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+		{
+			pnlEditor.Invalidate();
 		}
     }
 }
