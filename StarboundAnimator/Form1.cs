@@ -203,7 +203,10 @@ namespace StarboundAnimator
 			tbSource.Text = frame.Source;
 			FramesProperties.InitForFrames(frame);
 			pgProperties.SelectedObject = FramesProperties;
-			pnlEditor.UpdateFrameShowButtons(true);
+			pnlEditor.InitForFrame();
+
+			framesToolStripMenuItem2.Visible = true;
+			FrameGridChanged(frame.frameGrid != null); 
 		}
 
 		void UnsetWorkingFrames()
@@ -214,6 +217,8 @@ namespace StarboundAnimator
 				FramesProperties.Frame = null;
 				Globals.WorkingFrames = null;
 				tbSource.Text = "";
+
+				framesToolStripMenuItem2.Visible = false;
 			}
 
 			pnlEditor.UpdateFrameShowButtons(false);
@@ -329,6 +334,13 @@ namespace StarboundAnimator
 			}
 		}
 
+		public void FrameGridChanged(bool bAdded)
+		{
+			addGridToolStripMenuItem.Enabled = !bAdded;
+			removeGridToolStripMenuItem.Enabled = bAdded;
+			convertToListToolStripMenuItem.Enabled = bAdded;
+		}
+
 		private void tvAssets_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			if (e.Node.Text.EndsWith(".frames"))
@@ -339,7 +351,6 @@ namespace StarboundAnimator
 				if ((e.Node as AssetTreeNode).Asset != null)
 				{
 					frame = (e.Node as AssetTreeNode).Asset as Frames;
-					pgProperties.SelectedObject = frame;
 				}
 				else
 				{
@@ -347,6 +358,7 @@ namespace StarboundAnimator
 					frame = Frames.LoadFromFile(framepath);
 					if (frame != null)
 					{
+						frame.bReadOnly = true;
 						(e.Node as AssetTreeNode).Asset = frame;
 						e.Node.ImageIndex = ASSET_IMAGELIST_FRAMES;
 						e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMES;
@@ -361,7 +373,20 @@ namespace StarboundAnimator
 								if (dr == DialogResult.Yes)
 								{
 									frame.image = imagename;
-									frame.Img = Image.FromFile(imagepath + imagename);
+									try
+									{
+										Image img = Image.FromFile(imagepath + imagename);
+										frame.Img = img.Clone() as Image;
+										img.Dispose();
+									}
+									catch
+									{
+										if (frame.Img != null)
+										{
+											frame.Img.Dispose();
+											frame.Img = null;
+										}
+									}
 								}
 							}
 						}
@@ -380,7 +405,20 @@ namespace StarboundAnimator
 								imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length) + frame.image;
 							}
 
-							frame.Img = Image.FromFile(imagepath);
+							try
+							{
+								Image img = Image.FromFile(imagepath);
+								frame.Img = img.Clone() as Image;
+								img.Dispose();
+							}
+							catch
+							{
+								if (frame.Img != null)
+								{
+									frame.Img.Dispose();
+									frame.Img = null;
+								}
+							}
 						}
 
 						if (frame.Img == null)
@@ -406,8 +444,6 @@ namespace StarboundAnimator
 								frame.Img = bmp;
 							}
 						}
-
-						pgProperties.SelectedObject = frame;
 					}
 					else
 					{
@@ -469,9 +505,253 @@ namespace StarboundAnimator
 			*/
 		}
 
-		private void pgProperties_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+		private void pgProperties_PropertyValueChanged(object o, PropertyValueChangedEventArgs e)
 		{
+			if (Globals.WorkingFrames != null)
+			{
+				FramesProperties fp = pgProperties.SelectedObject as FramesProperties;
+				if (e.ChangedItem.Label == "Height")
+				{
+					if (e.ChangedItem.Parent.Label == "Dimensions")
+					{
+						if (fp.FGP.Dimensions.Height < 1)
+						{
+							Size s = fp.FGP.dimensions;
+							s.Height = 1;
+							fp.FGP.Dimensions = s;
+							MessageBox.Show("Dimensions cannot be less than 1!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							pgProperties.Refresh();
+						}
+						else
+						{
+							Image img = Globals.WorkingFrames.Img != null ? Globals.WorkingFrames.Img : Globals.WorkingFrames.AltImg;
+							if (img != null)
+							{
+								// check for grid being larger than img
+								if ((img.Width < fp.FGP.Size.Width * fp.FGP.Dimensions.Width) || (img.Height < fp.FGP.Size.Height * fp.FGP.Dimensions.Height))
+								{
+									int ow = img.Width / fp.FGP.Dimensions.Width;
+									int oh = img.Height / fp.FGP.Dimensions.Height;
+									StringBuilder sb = new StringBuilder();
+									sb.Append("The given dimension values result in frames that won't appear for the image used! To avoid errors in-game with the image used, use size values of ");
+									sb.Append(ow);
+									sb.Append('x');
+									sb.Append(oh);
+									sb.Append(" for the new dimension values. Do you want the size values adjusted for you?");
+									DialogResult dr = MessageBox.Show(sb.ToString(), "Warning!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+									if (dr == DialogResult.Yes)
+									{
+										Size sz = fp.FGP.Size;
+										sz.Width = ow;
+										sz.Height = oh;
+										fp.FGP.Size = sz;
+										pgProperties.Refresh();
+									}
+								}
+							}
+						}
+					}
+					else if (e.ChangedItem.Parent.Label == "Size")
+					{
+						if (fp.FGP.Size.Height < 1)
+						{
+							Size s = fp.FGP.size;
+							s.Height = 1;
+							fp.FGP.Size = s;
+							MessageBox.Show("Size cannot be less than 1!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							pgProperties.Refresh();
+						}
+						else
+						{
+							Image img = Globals.WorkingFrames.Img != null ? Globals.WorkingFrames.Img : Globals.WorkingFrames.AltImg;
+							if (img != null)
+							{
+								// check for grid being larger than img
+								if ((img.Width < fp.FGP.Size.Width * fp.FGP.Dimensions.Width) || (img.Height < fp.FGP.Size.Height * fp.FGP.Dimensions.Height))
+								{
+									int ow = img.Width / fp.FGP.Dimensions.Width;
+									int oh = img.Height / fp.FGP.Dimensions.Height;
+									StringBuilder sb = new StringBuilder();
+									sb.Append("The given size values are too large for the image used at the current dimensions! To avoid errors in-game with the image used, use size values of ");
+									sb.Append(ow);
+									sb.Append('x');
+									sb.Append(oh);
+									sb.Append(" for the current dimension values. Do you want the size values adjusted for you?");
+									DialogResult dr = MessageBox.Show(sb.ToString(), "Warning!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+									if (dr == DialogResult.Yes)
+									{
+										Size sz = fp.FGP.Size;
+										sz.Width = ow;
+										sz.Height = oh;
+										fp.FGP.Size = sz;
+										pgProperties.Refresh();
+									}
+								}
+							}
+						}
+					}
+				}
+				else if (e.ChangedItem.Label == "Width")
+				{
+					if (e.ChangedItem.Parent.Label == "Dimensions")
+					{
+						if (fp.FGP.Dimensions.Width < 1)
+						{
+							Size s = fp.FGP.dimensions;
+							s.Width = 1;
+							fp.FGP.Dimensions = s;
+							MessageBox.Show("Dimensions cannot be less than 1!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							pgProperties.Refresh();
+						}
+						else
+						{
+							Image img = Globals.WorkingFrames.Img != null ? Globals.WorkingFrames.Img : Globals.WorkingFrames.AltImg;
+							if (img != null)
+							{
+								// check for grid being larger than img
+								if ((img.Width < fp.FGP.Size.Width * fp.FGP.Dimensions.Width) || (img.Height < fp.FGP.Size.Height * fp.FGP.Dimensions.Height))
+								{
+									int ow = img.Width / fp.FGP.Dimensions.Width;
+									int oh = img.Height / fp.FGP.Dimensions.Height;
+									StringBuilder sb = new StringBuilder();
+									sb.Append("The given dimension values result in frames that won't appear for the image used! To avoid errors in-game with the image used, use size values of ");
+									sb.Append(ow);
+									sb.Append('x');
+									sb.Append(oh);
+									sb.Append(" for the new dimension values. Do you want the size values adjusted for you?");
+									DialogResult dr = MessageBox.Show(sb.ToString(), "Warning!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+									if (dr == DialogResult.Yes)
+									{
+										Size sz = fp.FGP.Size;
+										sz.Width = ow;
+										sz.Height = oh;
+										fp.FGP.Size = sz;
+										pgProperties.Refresh();
+									}
+								}
+							}
+						}
+					}
+					else if (e.ChangedItem.Parent.Label == "Size")
+					{
+						if (fp.FGP.Size.Width < 1)
+						{
+							Size s = fp.FGP.size;
+							s.Width = 1;
+							fp.FGP.Size = s;
+							MessageBox.Show("Size cannot be less than 1!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							pgProperties.Refresh();
+						}
+						else
+						{
+							Image img = Globals.WorkingFrames.Img != null ? Globals.WorkingFrames.Img : Globals.WorkingFrames.AltImg;
+							if (img != null)
+							{
+								// check for grid being larger than img
+								if ((img.Width < fp.FGP.Size.Width * fp.FGP.Dimensions.Width) || (img.Height < fp.FGP.Size.Height * fp.FGP.Dimensions.Height))
+								{
+									int ow = img.Width / fp.FGP.Dimensions.Width;
+									int oh = img.Height / fp.FGP.Dimensions.Height;
+									StringBuilder sb = new StringBuilder();
+									sb.Append("The given size values are too large for the image used at the current dimensions! To avoid errors in-game with the image used, use size values of ");
+									sb.Append(ow);
+									sb.Append('x');
+									sb.Append(oh);
+									sb.Append(" for the current dimension values. Do you want the size values adjusted for you?");
+									DialogResult dr = MessageBox.Show(sb.ToString(), "Warning!", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+									if (dr == DialogResult.Yes)
+									{
+										Size sz = fp.FGP.Size;
+										sz.Width = ow;
+										sz.Height = oh;
+										fp.FGP.Size = sz;
+										pgProperties.Refresh();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
 			pnlEditor.Invalidate();
+		}
+
+		private void addGridToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if ((Globals.WorkingFrames != null) && (Globals.WorkingFrames.frameGrid == null))
+			{
+				Globals.WorkingFrames.CreateFrameGrid();
+				FrameGridChanged(true);
+				FramesProperties.InitForFrames(Globals.WorkingFrames);
+				pgProperties.SelectedObject = null;
+				pgProperties.SelectedObject = FramesProperties;
+				pnlEditor.UpdateFrameShowButtons(true);
+				pnlEditor.Invalidate();
+			}
+		}
+
+		private void removeGridToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if ((Globals.WorkingFrames != null) && (Globals.WorkingFrames.frameGrid != null))
+			{
+				DialogResult dr = MessageBox.Show("Are you sure you want to delete the grid? This will also remove all grid-named frames.", "Deletion confimation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				if (dr == DialogResult.Yes)
+				{
+					bool bAliases = false;
+					if (Globals.WorkingFrames.aliases != null)
+					{
+						foreach (_frameItem fi in Globals.WorkingFrames.ListFrameItems)
+						{
+							foreach (_frameName fn in fi.names)
+							{
+								if ((fn.source == Globals.FrameSource_Grid) || (fn.source == Globals.FrameSource_Name))
+								{
+									if (Globals.WorkingFrames.aliases.ContainsValue(fn.name))
+									{
+										bAliases = true;
+										break;
+									}
+								}
+							}
+
+							if (bAliases) break;
+						}
+					}
+
+					if (bAliases)
+					{
+						dr = MessageBox.Show("There are aliases to grid frames. Do you want to delete the aliases as well?", "Orphan alias warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+						if (dr == DialogResult.Cancel) return;
+						
+						bAliases = dr == DialogResult.Yes;
+					}
+
+					Globals.WorkingFrames.RemoveFrameGrid(bAliases);
+					FrameGridChanged(false);
+					FramesProperties.InitForFrames(Globals.WorkingFrames);
+					pgProperties.SelectedObject = null;
+					pgProperties.SelectedObject = FramesProperties;
+					pnlEditor.UpdateFrameShowButtons(true);
+					pnlEditor.Invalidate();
+				}
+			}
+		}
+
+		private void convertToListToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ConvertGridToListForm cgl = new ConvertGridToListForm();
+			DialogResult dr = cgl.ShowDialog();
+			if (dr == DialogResult.OK)
+			{
+				Globals.WorkingFrames.ConvertGridtoList(cgl.bConvertDefaults, cgl.bConvertNames);
+				FrameGridChanged(false);
+				FramesProperties.InitForFrames(Globals.WorkingFrames);
+				pgProperties.SelectedObject = null;
+				pgProperties.SelectedObject = FramesProperties;
+				pnlEditor.UpdateFrameShowButtons(true);
+				pnlEditor.Invalidate();
+			}
 		}
     }
 }

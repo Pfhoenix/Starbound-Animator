@@ -88,6 +88,7 @@ namespace StarboundAnimator
 					DialogResult dr = MessageBox.Show("Asset Scan Path \"" + CachedAssets[i].Path + "\" does not exist! Remove from the list?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 					if (dr == DialogResult.Yes) CachedAssets.RemoveAt(i--);
 					else CachedAssets[i].Assets.Clear();
+					continue;
 				}
 				else
 				{

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Drawing;
-using System.Drawing.Design;
-using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace StarboundAnimator
 {
@@ -69,23 +64,6 @@ namespace StarboundAnimator
 				Frame.frameGrid.dimensions.Clear();
 				Frame.frameGrid.dimensions.Add(FGP.dimensions.Width);
 				Frame.frameGrid.dimensions.Add(FGP.dimensions.Height);
-				/*if (Frame.frameGrid.names != null) Frame.frameGrid.names.Clear();
-				if (!string.IsNullOrEmpty(FGP.names))
-				{
-					string ts = FGP.names.Replace(Environment.NewLine, "|");
-					string[] s = FGP.names.Split(new char[] { '|' });
-					char[] spacesplit = new char[] { ' ' };
-					for (int i = 0; i < s.Length; i++)
-					{
-						Frame.frameGrid.names.Add(new List<string>());
-						string[] ss = s[i].Split(spacesplit);
-						for (int j = 0; j < ss.Length; j++)
-						{
-							if (ss[j] == "!null!") Frame.frameGrid.names[i].Add(null);
-							else Frame.frameGrid.names[i].Add(ss[j]);
-						}
-					}
-				}*/
 			}
 		}
 
@@ -143,23 +121,6 @@ namespace StarboundAnimator
 					Frame.frameGrid.dimensions.Add(1);
 					Frame.frameGrid.dimensions.Add(1);
 				}
-
-				/*if (Frame.frameGrid.names != null)
-				{
-					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < Frame.frameGrid.names.Count; i++)
-					{
-						if (i > 0) sb.AppendLine();
-						for (int j = 0; j < Frame.frameGrid.names[i].Count; j++)
-						{
-							if (j > 0) sb.Append(' ');
-							if (string.IsNullOrEmpty(Frame.frameGrid.names[i][j])) sb.Append("!null!");
-							else sb.Append(Frame.frameGrid.names[i][j]);
-						}
-					}
-
-					FrameGrid.names = sb.ToString();
-				}*/
 			}
 		}
 

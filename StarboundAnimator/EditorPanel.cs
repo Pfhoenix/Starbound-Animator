@@ -12,7 +12,7 @@ namespace StarboundAnimator
 		EEditMode EditMode;
 
 		readonly int[] ZoomLevels = { 1, 2, 3, 4, 6, 8, 12, 16 };
-		int ZoomIndex = 1;
+		int ZoomIndex = 0;
 		Color bgColor;
 		int[] AreaCenter;
 		int[] Translation;
@@ -28,12 +28,17 @@ namespace StarboundAnimator
 
 		byte ValidFramesFlag;
 
+		OpenFileDialog OFD;
 		VScrollBar vsbZoom;
 		ComboBox cbFrameNames;
 		CheckBox cbShowGrid;
 		CheckBox cbShowList;
 		CheckBox cbShowNames;
 		CheckBox cbShowAliases;
+		Button btnBackground;
+		Button btnBgReset;
+		Button btnAddFrame;
+		Button btnRemoveFrame;
 
 		Point LastImageOffset;
 		Matrix LastTransform;
@@ -54,6 +59,13 @@ namespace StarboundAnimator
 						  , true);
 			InitializeComponent();
 
+			OFD = new OpenFileDialog();
+			OFD.AutoUpgradeEnabled = true;
+			OFD.CheckFileExists = true;
+			OFD.Filter = "Image files (*.bmp, *.gif, *.jpg, *.jpeg, *.png, *.tiff)|*.bmp;*.gif;*.jpg;*.jpeg;*.png;*.tiff";
+			OFD.InitialDirectory = Globals.AppPath;
+			OFD.Multiselect = false;
+
 			vsbZoom = new VScrollBar();
 			Controls.Add(vsbZoom);
 			vsbZoom.Cursor = Cursors.SizeNS;
@@ -73,7 +85,6 @@ namespace StarboundAnimator
 			cbFrameNames.Size = new Size(173, 21);
 			cbFrameNames.TabIndex = 2;
 			cbFrameNames.DropDownStyle = ComboBoxStyle.DropDownList;
-			cbFrameNames.TextUpdate += FrameNameTextChanged;
 
 			cbShowGrid = new CheckBox();
 			Controls.Add(cbShowGrid);
@@ -131,6 +142,48 @@ namespace StarboundAnimator
 			cbShowAliases.CheckState = CheckState.Unchecked;
 			cbShowAliases.CheckedChanged += FrameShowFilterChanged;
 
+			btnBackground = new Button();
+			Controls.Add(btnBackground);
+			btnBackground.Name = "btnBackground";
+			btnBackground.Size = new Size(75, 23);
+			btnBackground.Location = new Point(3, Bounds.Bottom - btnBackground.Height);
+			btnBackground.TabIndex = 6;
+			btnBackground.Text = "Background";
+			btnBackground.UseVisualStyleBackColor = true;
+			btnBackground.Click += btnBackgound_Clicked;
+
+			btnBgReset = new Button();
+			Controls.Add(btnBgReset);
+			btnBgReset.Enabled = false;
+			btnBgReset.Name = "btnBgReset";
+			btnBgReset.Size = new Size(45, 23);
+			btnBgReset.Location = new Point(btnBackground.Location.X, btnBackground.Location.Y - btnBgReset.Height - 1);
+			btnBgReset.TabIndex = 7;
+			btnBgReset.Text = "Reset";
+			btnBgReset.UseVisualStyleBackColor = true;
+			btnBgReset.Click += btnBgReset_Clicked;
+
+			btnAddFrame = new Button();
+			Controls.Add(btnAddFrame);
+			btnAddFrame.Name = "btnAddFrame";
+			btnAddFrame.Size = new Size(23, 23);
+			btnAddFrame.Location = new Point(cbFrameNames.Location.X - 25, cbFrameNames.Location.Y);
+			btnAddFrame.TabIndex = 8;
+			btnAddFrame.Text = "+";
+			btnAddFrame.UseVisualStyleBackColor = true;
+			btnAddFrame.Click += btnAddFrame_Clicked;
+
+			btnRemoveFrame = new Button();
+			Controls.Add(btnRemoveFrame);
+			btnRemoveFrame.Name = "btnRemoveFrame";
+			btnRemoveFrame.Size = new Size(23, 23);
+			btnRemoveFrame.Location = new Point(cbFrameNames.Location.X - 25, cbFrameNames.Location.Y);
+			btnRemoveFrame.TabIndex = 8;
+			btnRemoveFrame.Text = "-";
+			btnRemoveFrame.UseVisualStyleBackColor = true;
+			btnRemoveFrame.Enabled = false;
+			btnRemoveFrame.Click += btnRemoveFrame_Clicked;
+
 			bgColor = Color.Black;
 			frameDefaultColor = Color.FromArgb(127, Color.Magenta);
 			penGrid = new Pen(frameDefaultColor, 1);
@@ -146,9 +199,175 @@ namespace StarboundAnimator
 			LastTransform = new Matrix();
 		}
 
+		void btnAddFrame_Clicked(object sender, EventArgs e)
+		{
+			AddFrameForm aff = new AddFrameForm();
+			if (WorkingFrameItem == null)
+			{
+				aff.InitAll();
+			}
+			else
+			{
+				aff.InitForFrame(WorkingFrameItem);
+			}
+
+			DialogResult dr = aff.ShowDialog();
+			if (dr == DialogResult.OK)
+			{
+				if (aff.FrameType == Globals.FrameSource_Name)
+				{
+					Globals.WorkingFrames.SetFrameGridName(aff.NameOf, aff.FrameName);
+				}
+				else if (aff.FrameType == Globals.FrameSource_List)
+				{
+					Rectangle size = aff.FrameSize;
+					Globals.WorkingFrames.AddFrameListItem(aff.FrameName, size.X, size.Y, size.Width, size.Height);
+				}
+				else if (aff.FrameType == Globals.FrameSource_Alias)
+				{
+					Globals.WorkingFrames.AddAlias(aff.FrameName, aff.AliasOf);
+				}
+
+				UpdateFrameShowButtons(true);
+				Invalidate();
+			}
+		}
+
+		void RemoveFrame(_frameName rf)
+		{
+			if (rf != null)
+			{
+				if (Globals.WorkingFrames != null) Globals.WorkingFrames.RemoveFrame(rf);
+				Invalidate();
+			}
+		}
+
+		void btnRemoveFrame_Clicked(object sender, EventArgs e)
+		{
+			if (WorkingFrameItem == null)
+			{
+				btnRemoveFrame.Enabled = false;
+				return;
+			}
+
+			List<_frameName> fns;
+			DialogResult dr;
+			_frameName curFrame = WorkingFrameItem.names[cbFrameNames.SelectedIndex];
+			if (curFrame.source == Globals.FrameSource_Grid)
+			{
+				// not normally able to delete default frames. only solution is to copy all default frames to the frameList set and then remove the frameGrid
+			}
+			else
+			{
+				fns = Globals.WorkingFrames.GetAliasesFor(curFrame.name);
+				bool bDelete = false;
+				if (fns.Count > 0)
+				{
+					dr = MessageBox.Show("Deleting the frame '" + curFrame.name + "' will delete " + fns.Count + " aliases. Do you want to move them to a different frame instead?", "Dependancy Check", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+					if (dr == DialogResult.Yes)
+					{
+						// build exclude list
+						List<string> excludes = new List<string>();
+						excludes.Add(curFrame.name);
+						foreach (_frameName fn in fns)
+							excludes.Add(fn.name);
+						FrameSelectForm fsf = new FrameSelectForm();
+						fsf.InitFor(Globals.WorkingFrames, excludes);
+						dr = fsf.ShowDialog();
+						if (dr == DialogResult.OK)
+						{
+							string nn = fsf.Value;
+							if (nn != null)
+							{
+								foreach (_frameName fn in fns)
+								{
+									fn.aliasof = nn;
+									WorkingFrameItem.RemoveName(fn.name);
+									_frameItem fi = Globals.WorkingFrames.ListFrameItems.Find(f => f.names.Exists(n => n.name == nn));
+									if (fi != null) fi.names.Add(fn);
+									Globals.WorkingFrames.aliases[fn.name] = nn;
+								}
+
+								bDelete = true;
+							}
+						}
+					}
+					else if (dr == DialogResult.No)
+					{
+						foreach (_frameName fn in fns)
+							RemoveFrame(fn);
+
+						bDelete = true;
+					}
+				}
+				else
+				{
+					dr = MessageBox.Show("Are you sure you want to delete the frame '" + curFrame.name + "'?", "Deletion Check", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					if (dr == DialogResult.Yes) bDelete = true;
+				}
+
+				if (bDelete)
+				{
+					RemoveFrame(curFrame);
+
+					WorkingFrameItem = null;
+					cbFrameNames.Items.Clear();
+
+					Invalidate();
+				}
+			}
+		}
+
 		void vsbZoom_ValueChanged(object o, EventArgs e)
 		{
 			ZoomIndex = ZoomLevels.Length - 1 - vsbZoom.Value;
+			Invalidate();
+		}
+
+		void btnBackgound_Clicked(object o, EventArgs e)
+		{
+			DialogResult dr = OFD.ShowDialog();
+			if (dr == DialogResult.OK)
+			{
+				Image tai = Globals.WorkingFrames.AltImg;
+				Globals.WorkingFrames.AltImg = null;
+				try
+				{
+					Image img = Image.FromFile(OFD.FileName);
+					Globals.WorkingFrames.AltImg = img.Clone() as Image;
+					img.Dispose();
+					if (tai != null)
+					{
+						tai.Dispose();
+						tai = null;
+					}
+
+					btnBgReset.Enabled = true;
+				}
+				catch
+				{
+					if (Globals.WorkingFrames.AltImg == null)
+					{
+						Globals.WorkingFrames.AltImg = tai;
+					}
+
+					btnBgReset.Enabled = Globals.WorkingFrames.AltImg != null;
+				}
+
+				Invalidate();
+			}
+		}
+
+		void btnBgReset_Clicked(object o, EventArgs e)
+		{
+			if (Globals.WorkingFrames.AltImg != null)
+			{
+				Globals.WorkingFrames.AltImg.Dispose();
+				Globals.WorkingFrames.AltImg = null;
+			}
+
+			btnBgReset.Enabled = false;
+
 			Invalidate();
 		}
 
@@ -187,11 +406,6 @@ namespace StarboundAnimator
 			Invalidate();
 		}
 
-		void FrameNameTextChanged(object o, EventArgs e)
-		{
-			int i = 3;
-		}
-		
 		void RecalcAreaCenter(RectangleF vb)
 		{
 			AreaCenter = new int[]
@@ -207,6 +421,10 @@ namespace StarboundAnimator
 
 			vsbZoom.Location = new Point(Bounds.Right - vsbZoom.Width - 1, Bounds.Bottom - vsbZoom.Height - 1);
 			cbFrameNames.Location = new Point(vsbZoom.Location.X - cbFrameNames.Width - 1, Bounds.Bottom - cbFrameNames.Height - 1);
+			btnBackground.Location = new Point(btnBackground.Location.X, Bounds.Bottom - btnBackground.Height - 3);
+			btnBgReset.Location = new Point(btnBackground.Location.X, btnBackground.Location.Y - btnBgReset.Height - 1);
+			btnRemoveFrame.Location = new Point(cbFrameNames.Location.X - btnRemoveFrame.Width - 1, cbFrameNames.Location.Y);
+			btnAddFrame.Location = new Point(btnRemoveFrame.Location.X - btnAddFrame.Width - 1, btnRemoveFrame.Location.Y);
 
 			base.OnResize(eventargs);
 		}
@@ -260,11 +478,58 @@ namespace StarboundAnimator
 			}
 		}
 
+		public void InitForFrame()
+		{
+			UpdateFrameShowButtons(true);
+			btnBgReset.Enabled = Globals.WorkingFrames.AltImg != null;
+		}
+
 		protected override void OnLostFocus(EventArgs e)
 		{
 			// cancel whatever operation we're in the middle of
 			EndMode();
-			WorkingFrameItem = null;
+		}
+
+		protected override void OnMouseClick(MouseEventArgs e)
+		{
+			if (e.Button != MouseButtons.Left) return;
+
+			if (Globals.WorkingFrames != null)
+			{
+				Matrix IT = LastTransform.Clone();
+				IT.Invert();
+				Point[] p = new Point[] { new Point(e.X, e.Y) };
+				IT.TransformPoints(p);
+				p[0].X -= LastImageOffset.X;
+				p[0].Y -= LastImageOffset.Y;
+				WorkingFrameItem = Globals.WorkingFrames.GetItemUnder(p[0].X, p[0].Y, ValidFramesFlag);
+				cbFrameNames.Items.Clear();
+				if (WorkingFrameItem != null)
+				{
+					string name;
+					foreach (_frameName fn in WorkingFrameItem.names)
+					{
+						if ((fn.source & ValidFramesFlag) == 0) continue;
+						name = fn.name;
+						if (fn.source == Globals.FrameSource_Grid) name += " (default)";
+						else if (fn.source == Globals.FrameSource_List) name += " (list)";
+						else if (fn.source == Globals.FrameSource_Name) name += " (name)";
+						else if (fn.source == Globals.FrameSource_Alias) name += " (alias)";
+						cbFrameNames.Items.Add(name);
+					}
+
+					cbFrameNames.SelectedIndex = 0;
+
+					btnRemoveFrame.Enabled = true;
+				}
+				else
+				{
+					cbFrameNames.Text = "";
+					btnRemoveFrame.Enabled = false;
+				}
+
+				Invalidate();
+			}
 		}
 
 		protected override void OnMouseDown(MouseEventArgs e)
@@ -281,39 +546,6 @@ namespace StarboundAnimator
 					LastMovePos[1] = e.Y;
 
 					Cursor = Cursors.NoMove2D;
-				}
-				else if (e.Button == MouseButtons.Left)
-				{
-					if (Globals.WorkingFrames != null)
-					{
-						Matrix IT = LastTransform.Clone();
-						IT.Invert();
-						Point[] p = new Point[] { new Point(e.X, e.Y) };
-						IT.TransformPoints(p);
-						p[0].X -= LastImageOffset.X;
-						p[0].Y -= LastImageOffset.Y;
-						WorkingFrameItem = Globals.WorkingFrames.GetItemUnder(p[0].X, p[0].Y, ValidFramesFlag);
-						cbFrameNames.Items.Clear();
-						if (WorkingFrameItem != null)
-						{
-							string name;
-							foreach (_frameName fn in WorkingFrameItem.names)
-							{
-								if ((fn.source & ValidFramesFlag) == 0) continue;
-								name = fn.name;
-								if (fn.source == Globals.FrameSource_Grid) name += " (default)";
-								else if (fn.source == Globals.FrameSource_List) name += " (list)";
-								else if (fn.source == Globals.FrameSource_Name) name += " (name)";
-								else if (fn.source == Globals.FrameSource_Alias) name += " (alias)";
-								cbFrameNames.Items.Add(name);
-							}
-							
-							cbFrameNames.SelectedIndex = 0;
-						}
-						else cbFrameNames.Text = "";
-
-						Invalidate();
-					}
 				}
 			}
 		}
@@ -427,7 +659,7 @@ namespace StarboundAnimator
 				int imgY = 0;
 				int imgWidth = 0;
 				int imgHeight = 0;
-				Image img = Globals.WorkingFrames.Img;
+				Image img = Globals.WorkingFrames.AltImg != null ? Globals.WorkingFrames.AltImg : Globals.WorkingFrames.Img;
 				if (img != null)
 				{
 					imgWidth = img.Width;

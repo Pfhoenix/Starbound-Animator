@@ -47,9 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddFrameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddFrameForm.Designer.cs">
+      <DependentUpon>AddFrameForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Animation.cs" />
     <Compile Include="Asset.cs" />
     <Compile Include="AssetTreeNode.cs" />
+    <Compile Include="ConvertGridToListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConvertGridToListForm.Designer.cs">
+      <DependentUpon>ConvertGridToListForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -63,6 +75,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Frames.cs" />
+    <Compile Include="FrameSelectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrameSelectForm.Designer.cs">
+      <DependentUpon>FrameSelectForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FramesProperties.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="ProcessFoundFilesForm.cs">
@@ -87,8 +105,17 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddFrameForm.resx">
+      <DependentUpon>AddFrameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConvertGridToListForm.resx">
+      <DependentUpon>ConvertGridToListForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrameSelectForm.resx">
+      <DependentUpon>FrameSelectForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ProcessFoundFilesForm.resx">
       <DependentUpon>ProcessFoundFilesForm.cs</DependentUpon>

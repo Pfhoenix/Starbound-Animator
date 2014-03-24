@@ -52,7 +52,59 @@ namespace StarboundAnimator
 	{
 		public List<int> size = new List<int>();
 		public List<int> dimensions = new List<int>();
-		public List<List<string>> names;// = new List<List<string>>();
+		public List<List<string>> names;
+
+		public _frameGrid() { }
+
+		public _frameGrid(int sw, int sh, int dw, int dh)
+		{
+			size = new List<int>(2);
+			size.Add(sw);
+			size.Add(sh);
+
+			dimensions = new List<int>(2);
+			dimensions.Add(dw);
+			dimensions.Add(dh);
+		}
+
+		public void CreateNames()
+		{
+			names = new List<List<string>>(dimensions[1]);
+
+			for (int j = 0; j < dimensions[1]; j++)
+			{
+				names.Add(new List<string>(dimensions[0]));
+				for (int i = 0; i < dimensions[0]; i++)
+					names[j].Add(null);
+			}
+		}
+
+		// returns null if dn isn't a proper default frame name (a number) or if no such default frame number
+		// else returns the prior name, "" if none
+		public string SetNameFor(string dn, string n)
+		{
+			int di = -1;
+			int.TryParse(dn, out di);
+			if (di < 0) return null;
+
+			if (names == null) CreateNames();
+
+			for (int i = 0; i < names.Count; i++)
+			{
+				if (names[i].Count <= di)
+				{
+					di -= names[i].Count;
+				}
+				else
+				{
+					string on = names[i][di];
+					names[i][di] = n;
+					return (on == null ? "" : on);
+				}
+			}
+
+			return null;
+		}
 	}
 
 	public class Frames : Asset
@@ -64,7 +116,11 @@ namespace StarboundAnimator
 		public Dictionary<string, string> aliases;
 
 		[NonSerialized]
+		public bool bReadOnly;
+		[NonSerialized]
 		public Image Img;
+		[NonSerialized]
+		public Image AltImg;
 		[NonSerialized]
 		public Dictionary<string, _frameItem> LookupFrameItems = new Dictionary<string, _frameItem>();
 		[NonSerialized]
@@ -73,6 +129,16 @@ namespace StarboundAnimator
 
 		public Frames()
 		{
+		}
+
+		public void CreateFrameGrid()
+		{
+			frameGrid = new _frameGrid(1, 1, 1, 1);
+		}
+
+		public void CreateFrameList()
+		{
+			frameList = new Dictionary<string, int[]>();
 		}
 
 		public static Frames LoadFromFile(string path)
@@ -109,6 +175,122 @@ namespace StarboundAnimator
 			frame.RecalcFrameItems();
 
 			return frame;
+		}
+
+		public void SetFrameGridName(string d, string n)
+		{
+			if (frameGrid == null) return;
+
+			string on = frameGrid.SetNameFor(d, n);
+			if (on == null) return;
+			else
+			{
+				_frameItem fi = GetFrameItemOf(d);
+				if (on == "")
+				{
+					fi.AddName(n, Globals.FrameSource_Name);
+				}
+				else
+				{
+					foreach (_frameName fn in fi.names)
+					{
+						if (fn.name == on)
+						{
+							fn.name = n;
+							break;
+						}
+					}
+
+					LookupFrameItems.Remove(on);
+				}
+
+				LookupFrameItems.Add(n, fi);
+			}
+		}
+
+		public void SetFrameToList(_frameItem fi, string n)
+		{
+			for (int i = 0; i < fi.names.Count; i++)
+			{
+				if (fi.names[i].name == n)
+				{
+					SetFrameToList(fi, fi.names[i]);
+					return;
+				}
+			}
+		}
+
+		public void SetFrameToList(_frameItem fi, _frameName fn)
+		{
+			fn.source = Globals.FrameSource_List;
+			if (frameList == null) frameList = new Dictionary<string, int[]>();
+			frameList.Add(fn.name, new int[] { fi.x, fi.y, fi.x + fi.width - 1, fi.y + fi.height - 1 });
+		}
+
+		public void AddFrameListItem(string n, int x, int y, int w, int h)
+		{
+			_frameItem item = GetFrameItemOfSize(x, y, w, h);
+			if (item == null)
+			{
+				item = new _frameItem(x, y, w, h);
+				ListFrameItems.Add(item);
+			}
+			LookupFrameItems.Add(n, item);
+			item.AddName(n, Globals.FrameSource_List);
+
+			if (frameList == null) frameList = new Dictionary<string, int[]>();
+			frameList.Add(n, new int[] { x, y, x + w - 1, y + h - 1 });
+		}
+
+		public void AddAlias(string a, string ao)
+		{
+			_frameItem fi = GetFrameItemOf(ao);
+			if (fi != null)
+			{
+				fi.AddName(a, Globals.FrameSource_Alias, ao);
+				LookupFrameItems.Add(a, fi);
+				if (aliases == null) aliases = new Dictionary<string, string>();
+				aliases.Add(a, ao);
+			}
+		}
+
+		public void ConvertGridtoList(bool bConvertDefaults, bool bConvertNames)
+		{
+			if (frameGrid == null) return;
+			if (frameList == null) CreateFrameList();
+
+			frameGrid = null;
+
+			_frameItem fi;
+			_frameName fn;
+			for (int i = 0; i < ListFrameItems.Count; i++)
+			{
+				fi = ListFrameItems[i];
+				for (int j = 0; j < fi.names.Count; j++)
+				{
+					fn = fi.names[j];
+					if (fn.source == Globals.FrameSource_Grid)
+					{
+						if (bConvertDefaults) SetFrameToList(fi, fn);
+						else
+						{
+							fi.names.RemoveAt(j--);
+							LookupFrameItems.Remove(fn.name);
+						}
+					}
+					else if (fn.source == Globals.FrameSource_Name)
+					{
+						if (bConvertNames) SetFrameToList(fi, fn);
+						else
+						{
+							fi.names.RemoveAt(j--);
+							LookupFrameItems.Remove(fn.name);
+						}
+					}
+				}
+
+				if (fi.names.Count == 0) ListFrameItems.RemoveAt(i--);
+			}
 		}
 
 		public void RecalcFrameItems()
@@ -153,6 +335,21 @@ namespace StarboundAnimator
 				}
 			}
 
+			if (frameList != null)
+			{
+				foreach (KeyValuePair<string, int[]> entry in frameList)
+				{
+					item = GetFrameItemOfSize(entry.Value[0], entry.Value[1], entry.Value[2] - entry.Value[0] + 1, entry.Value[3] - entry.Value[1] + 1);
+					if (item == null)
+					{
+						item = new _frameItem(entry.Value[0], entry.Value[1], entry.Value[2] - entry.Value[0] + 1, entry.Value[3] - entry.Value[1] + 1);
+						ListFrameItems.Add(item);
+					}
+					LookupFrameItems.Add(entry.Key, item);
+					item.AddName(entry.Key, Globals.FrameSource_List);
+				}
+			}
+
 			if (aliases != null)
 			{
 				foreach (KeyValuePair<string, string> entry in aliases)
@@ -186,106 +383,130 @@ namespace StarboundAnimator
 
 			return null;
 		}
+
+		public List<_frameName> GetAliasesFor(string fname)
+		{
+			List<_frameName> als = new List<_frameName>();
+
+			foreach (_frameItem fi in ListFrameItems)
+			{
+				foreach (_frameName fn in fi.names)
+				{
+					if (fn.aliasof == fname) als.Add(fn);
+				}
+			}
+
+			return als;
+		}
+
+		public _frameItem GetFrameItemOf(_frameName fn)
+		{
+			if (LookupFrameItems.ContainsKey(fn.name)) return LookupFrameItems[fn.name];
+			else return null;
+		}
+
+		public _frameItem GetFrameItemOf(string fnn)
+		{
+			if (LookupFrameItems.ContainsKey(fnn)) return LookupFrameItems[fnn];
+			else return null;
+		}
+
+		public _frameItem GetFrameItemOfSize(int x, int y, int w, int h)
+		{
+			foreach (_frameItem fi in ListFrameItems)
+			{
+				if ((fi.x == x) && (fi.y == y) && (fi.width == w) && (fi.height == h)) return fi;
+			}
+
+			return null;
+		}
+
+		public void RemoveFrame(_frameName fn)
+		{
+			bool bRemove = false;
+
+			if ((fn.source == Globals.FrameSource_List) && (frameList != null))
+			{
+				frameList.Remove(fn.name);
+				if (frameList.Count == 0) frameList = null;
+				bRemove = true;
+			}
+			else if ((fn.source == Globals.FrameSource_Name) && (frameGrid != null) && (frameGrid.names != null))
+			{
+				for (int i = 0; i < frameGrid.names.Count; i++)
+				{
+					for (int j = 0; j < frameGrid.names[i].Count; j++)
+					{
+						if (frameGrid.names[i][j] == fn.name)
+						{
+							frameGrid.names[i][j] = null;
+							bRemove = true;
+							break;
+						}
+					}
+
+					if (bRemove) break;
+				}
+			}
+			else if ((fn.source == Globals.FrameSource_Alias) && (aliases != null))
+			{
+				aliases.Remove(fn.name);
+				if (aliases.Count == 0) aliases = null;
+				bRemove = true;
+			}
+
+			if (bRemove)
+			{
+				_frameItem fi = GetFrameItemOf(fn);
+				if (fi != null)
+				{
+					fi.RemoveName(fn.name);
+					if (fi.names.Count == 0) ListFrameItems.Remove(fi);
+					LookupFrameItems.Remove(fn.name);
+				}
+			}
+		}
+
+		void CleanupAliasesAt(_frameItem fi)
+		{
+			for (int i = 0; i < fi.names.Count; i++)
+			{
+				if (fi.names[i].source == Globals.FrameSource_Alias)
+				{
+					_frameName fn = fi.names.Find(tfn => tfn.name == fi.names[i].aliasof);
+					if (fn == null)
+					{
+						LookupFrameItems.Remove(fi.names[i].name);
+						aliases.Remove(fi.names[i].name);
+						fi.names.RemoveAt(i--);
+					}
+				}
+			}
+		}
+
+		public void RemoveFrameGrid(bool bAliasesToo)
+		{
+			frameGrid = null;
+
+			_frameItem fi;
+			_frameName fn;
+			for (int i = 0; i < ListFrameItems.Count; i++)
+			{
+				fi = ListFrameItems[i];
+				for (int j = 0; j < fi.names.Count; j++)
+				{
+					fn = fi.names[j];
+					if ((fn.source == Globals.FrameSource_Grid) || (fn.source == Globals.FrameSource_Name))
+					{
+						fi.names.RemoveAt(j--);
+						LookupFrameItems.Remove(fn.name);
+					}
+				}
+
+				if (bAliasesToo) CleanupAliasesAt(fi);
+
+				if (fi.names.Count == 0) ListFrameItems.RemoveAt(i--);
+			}
+		}
 	}
-
-	/*public class FrameGridPropertiesConverter : ExpandableObjectConverter
-	{
-		public override bool CanConvertTo(ITypeDescriptorContext context, System.Type destinationType)
-		{
-			if (destinationType == typeof(FrameGridProperty)) return true;
-
-			return base.CanConvertTo(context, destinationType);
-		}
-
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, System.Type destinationType)
-		{
-			if (destinationType == typeof(System.String) && value is FrameGridProperty)
-			{
-				FrameGridProperty fgp = (FrameGridProperty)value;
-
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < fgp.size.Count; i++)
-				{
-					if (i > 0) sb.Append(',');
-					sb.Append(fgp.size[i]);
-				}
-				sb.Append('|');
-				for (int i = 0; i < fgp.dimensions.Count; i++)
-				{
-					if (i > 0) sb.Append(',');
-					sb.Append(fgp.dimensions[i]);
-				}
-				sb.Append('|');
-				for (int i = 0; i < fgp.names.Count; i++)
-				{
-					if (i > 0) sb.Append(':');
-					for (int j = 0; j < fgp.names[i].Count; j++)
-					{
-						if (j > 0) sb.Append(',');
-						sb.Append(fgp.names[i][j]);
-					}
-				}
-
-				return sb.ToString();
-			}
-
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-		{
-			if (value is string)
-			{
-				try
-				{
-					string[] s = ((string)value).Split(new char[] { '|' });
-					if ((s != null) && (s.Length == 3))
-					{
-						char[] commasplit = new char[] { ',' };
-
-						FrameGridProperty fgp = new FrameGridProperty();
-
-						string[] s1 = s[0].Split(commasplit);
-						for (int i = 0; i < s1.Length; i++)
-						{
-							int ti = 0;
-							if (int.TryParse(s1[i], out ti)) fgp.size.Add(ti);
-						}
-
-						s1 = s[1].Split(commasplit);
-						for (int i = 0; i < s1.Length; i++)
-						{
-							int ti = 0;
-							if (int.TryParse(s1[i], out ti)) fgp.dimensions.Add(ti);
-						}
-
-						s1 = s[2].Split(new char[] { ':' });
-						string[] s2;
-						List<string> ls;
-						for (int i = 0; i < s1.Length; i++)
-						{
-							ls = new List<string>();
-
-							s2 = s1[i].Split(commasplit);
-							for (int j = 0; j < s2.Length; j++)
-							{
-								ls.Add(s2[j]);
-							}
-							fgp.names.Add(ls);
-						}
-
-						return fgp;
-					}
-				}
-				catch
-				{
-					throw new ArgumentException(
-						"Can not convert '" + (string)value +
-										   "' to type FrameGridProperties");
-				}
-			}
-
-			return base.ConvertFrom(context, culture, value);
-		}
-	}*/
 }

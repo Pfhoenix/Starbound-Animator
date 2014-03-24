@@ -1,30 +1,21 @@
 ﻿TODO :
 
+need to implement processing List source frames from JSON and throughout editor code
+
 control boxes for the frameList frames only
 
 need to allow clicking and dragging of control boxes where appropriate
  - on frameitem
 
-need a context menu popup to add/change/remove frames by right clicking on a frame
-
-need to sort out changing frameGrid properties populating back to the frames object
-
-need to add an image button to allow setting an arbitrary image for a background
-
-need to implement processing List source frames from JSON and throughout editor code
-
-what about using different colors for the rects around frameitems based on source?
-
-when editing frames, it's important that aliases don't desync with what they're aliasing
-
-need to figure out the best way to edit the names member
- - fucking multi-dimensional arrays.
+tabSource needs to present two refresh options :
+ - refresh from file
+ - generate from editor
 
 need to figure out how to smartly edit frameList and aliases
 
 need to start on reading/writing the JSON format for the files
- - it appears that there are multiple methods to define sprites with .frames files
-   - need to figure out how to unify the definition methods to a single native implementation
+ - need to check that NonSerialization works as expected
+ - need to start thinking about how to handle the different animation formats
 
 when changing the image name in properties, need to load the new image name
 
@@ -44,11 +35,11 @@ resources loaded by assets that aren't used by anything else should be unloaded
 need a project file format
  - animations and frames can either be native to the project or referenced in-place
 
-allow user to change background color of render area
-
 need to support unpacking Starbound assets also
  - when doing this, ask the user if they want to set the unpacking directory to the stock assets directory list
 
+allow user to change background color of render area
+
 need to have zooming change the center of the screen (affect translation)
 
-I also don't like the current VScrollBar. Make it look like a slider, damnit.
+I also don't like the current VScrollBar on the frames editor interface. Make it look like a slider, damnit.
