@@ -8,8 +8,14 @@ namespace StarboundAnimator
 {
 	public partial class EditorPanel : Panel
 	{
-		enum EEditMode { EM_None, EM_Translate };
+		enum EEditMode { EM_None, EM_Translate, EM_Resize };
 		EEditMode EditMode;
+
+		readonly Cursor[] cursors = { Cursors.Default, Cursors.PanNW, Cursors.PanNorth, Cursors.PanNE, Cursors.PanEast, Cursors.PanSE, Cursors.PanSouth, Cursors.PanSW, Cursors.PanWest };
+		readonly int[] ResizeDirX = { 0, -1, 0, 1, 1, 1, 0, -1, -1 };
+		readonly int[] ResizeDirY = { 0, -1, -1, -1, 0, 1, 1, 1, 0 };
+		EEdgeCorner ResizeDir = EEdgeCorner.None;
+		float[] ResizeMovement = { 0f, 0f };
 
 		readonly int[] ZoomLevels = { 1, 2, 3, 4, 6, 8, 12, 16 };
 		int ZoomIndex = 0;
@@ -26,7 +32,7 @@ namespace StarboundAnimator
 		Pen penAlias;
 		Pen frameControlBoxPen;
 
-		byte ValidFramesFlag;
+		FrameSource ValidFramesFlag;
 
 		OpenFileDialog OFD;
 		VScrollBar vsbZoom;
@@ -214,16 +220,16 @@ namespace StarboundAnimator
 			DialogResult dr = aff.ShowDialog();
 			if (dr == DialogResult.OK)
 			{
-				if (aff.FrameType == Globals.FrameSource_Name)
+				if (aff.FrameType == FrameSource.Name)
 				{
 					Globals.WorkingFrames.SetFrameGridName(aff.NameOf, aff.FrameName);
 				}
-				else if (aff.FrameType == Globals.FrameSource_List)
+				else if (aff.FrameType == FrameSource.List)
 				{
 					Rectangle size = aff.FrameSize;
 					Globals.WorkingFrames.AddFrameListItem(aff.FrameName, size.X, size.Y, size.Width, size.Height);
 				}
-				else if (aff.FrameType == Globals.FrameSource_Alias)
+				else if (aff.FrameType == FrameSource.Alias)
 				{
 					Globals.WorkingFrames.AddAlias(aff.FrameName, aff.AliasOf);
 				}
@@ -253,7 +259,7 @@ namespace StarboundAnimator
 			List<_frameName> fns;
 			DialogResult dr;
 			_frameName curFrame = WorkingFrameItem.names[cbFrameNames.SelectedIndex];
-			if (curFrame.source == Globals.FrameSource_Grid)
+			if (curFrame.source == FrameSource.Grid)
 			{
 				// not normally able to delete default frames. only solution is to copy all default frames to the frameList set and then remove the frameGrid
 			}
@@ -312,6 +318,17 @@ namespace StarboundAnimator
 
 					WorkingFrameItem = null;
 					cbFrameNames.Items.Clear();
+
+					if (Globals.WorkingFrames.aliases == null)
+					{
+						cbShowAliases.Checked = false;
+						cbShowAliases.Enabled = false;
+					}
+					if (Globals.WorkingFrames.frameList == null)
+					{
+						cbShowList.Checked = false;
+						cbShowList.Enabled = false;
+					}
 
 					Invalidate();
 				}
@@ -373,27 +390,27 @@ namespace StarboundAnimator
 
 		void FrameShowFilterChanged(object o, EventArgs e)
 		{
-			byte flag = Globals.FrameSource_None;
+			FrameSource flag = FrameSource.None;
 			bool bOn = false;
 
 			if (o == cbShowGrid)
 			{
-				flag = Globals.FrameSource_Grid;
+				flag = FrameSource.Grid;
 				bOn = cbShowGrid.Checked;
 			}
 			else if (o == cbShowList)
 			{
-				flag = Globals.FrameSource_List;
+				flag = FrameSource.List;
 				bOn = cbShowList.Checked;
 			}
 			else if (o == cbShowNames)
 			{
-				flag = Globals.FrameSource_Name;
+				flag = FrameSource.Name;
 				bOn = cbShowNames.Checked;
 			}
 			else if (o == cbShowAliases)
 			{
-				flag = Globals.FrameSource_Alias;
+				flag = FrameSource.Alias;
 				bOn = cbShowAliases.Checked;
 			}
 
@@ -455,26 +472,19 @@ namespace StarboundAnimator
 
 			if (!bShow)
 			{
-				ValidFramesFlag = Globals.FrameSource_None;
-			}
-			else if (Globals.WorkingFrames == null)
-			{
-				cbShowGrid.Enabled = false;
-				cbShowList.Enabled = false;
-				cbShowNames.Enabled = false;
-				cbShowAliases.Enabled = false;
+				ValidFramesFlag = FrameSource.None;
 			}
 			else
 			{
-				ValidFramesFlag = Globals.FrameSource_None;
-				cbShowGrid.Checked = cbShowGrid.Enabled = Globals.WorkingFrames.frameGrid != null;
-				if (cbShowGrid.Checked) ValidFramesFlag |= Globals.FrameSource_Grid;
-				cbShowList.Checked = cbShowList.Enabled = Globals.WorkingFrames.frameList != null;
-				if (cbShowList.Checked) ValidFramesFlag |= Globals.FrameSource_List;
-				cbShowNames.Checked = cbShowNames.Enabled = cbShowGrid.Enabled && ((Globals.WorkingFrames.frameGrid.names != null) && (Globals.WorkingFrames.frameGrid.names.Count > 0));
-				if (cbShowNames.Checked) ValidFramesFlag |= Globals.FrameSource_Name;
-				cbShowAliases.Checked = cbShowAliases.Enabled = Globals.WorkingFrames.aliases != null;
-				if (cbShowAliases.Checked) ValidFramesFlag |= Globals.FrameSource_Alias;
+				ValidFramesFlag = FrameSource.None;
+				cbShowGrid.Checked = Globals.WorkingFrames.frameGrid != null;
+				if (cbShowGrid.Checked) ValidFramesFlag |= FrameSource.Grid;
+				cbShowList.Checked = Globals.WorkingFrames.frameList != null;
+				if (cbShowList.Checked) ValidFramesFlag |= FrameSource.List;
+				cbShowNames.Checked = cbShowGrid.Checked && (Globals.WorkingFrames.frameGrid.names != null) && (Globals.WorkingFrames.frameGrid.names.Count > 0);
+				if (cbShowNames.Checked) ValidFramesFlag |= FrameSource.Name;
+				cbShowAliases.Checked = Globals.WorkingFrames.aliases != null;
+				if (cbShowAliases.Checked) ValidFramesFlag |= FrameSource.Alias;
 			}
 		}
 
@@ -492,7 +502,7 @@ namespace StarboundAnimator
 
 		protected override void OnMouseClick(MouseEventArgs e)
 		{
-			if (e.Button != MouseButtons.Left) return;
+			if (EditMode != EEditMode.EM_None) return;
 
 			if (Globals.WorkingFrames != null)
 			{
@@ -500,9 +510,13 @@ namespace StarboundAnimator
 				IT.Invert();
 				Point[] p = new Point[] { new Point(e.X, e.Y) };
 				IT.TransformPoints(p);
-				p[0].X -= LastImageOffset.X;
-				p[0].Y -= LastImageOffset.Y;
+				if (Globals.WorkingFrames.Img != null)
+				{
+					p[0].X -= LastImageOffset.X;
+					p[0].Y -= LastImageOffset.Y;
+				}
 				WorkingFrameItem = Globals.WorkingFrames.GetItemUnder(p[0].X, p[0].Y, ValidFramesFlag);
+
 				cbFrameNames.Items.Clear();
 				if (WorkingFrameItem != null)
 				{
@@ -511,10 +525,10 @@ namespace StarboundAnimator
 					{
 						if ((fn.source & ValidFramesFlag) == 0) continue;
 						name = fn.name;
-						if (fn.source == Globals.FrameSource_Grid) name += " (default)";
-						else if (fn.source == Globals.FrameSource_List) name += " (list)";
-						else if (fn.source == Globals.FrameSource_Name) name += " (name)";
-						else if (fn.source == Globals.FrameSource_Alias) name += " (alias)";
+						if (fn.source == FrameSource.Grid) name += " (default)";
+						else if (fn.source == FrameSource.List) name += " (list)";
+						else if (fn.source == FrameSource.Name) name += " (name)";
+						else if (fn.source == FrameSource.Alias) name += " (alias)";
 						cbFrameNames.Items.Add(name);
 					}
 
@@ -526,6 +540,13 @@ namespace StarboundAnimator
 				{
 					cbFrameNames.Text = "";
 					btnRemoveFrame.Enabled = false;
+				}
+
+				if (e.Button == MouseButtons.Right)
+				{
+					if (WorkingFrameItem != null)
+					{
+					}
 				}
 
 				Invalidate();
@@ -547,6 +568,32 @@ namespace StarboundAnimator
 
 					Cursor = Cursors.NoMove2D;
 				}
+				else if (e.Button == MouseButtons.Left)
+				{
+					/*if (Control.ModifierKeys == Keys.Shift)
+					{
+						Capture = true;
+						EditMode = EEditMode.EM_Translate;
+						LastMovePos[0] = e.X;
+						LastMovePos[1] = e.Y;
+
+						Cursor = Cursors.NoMove2D;
+					}
+					else */if ((WorkingFrameItem != null) && (Cursor != cursors[0]))
+					{
+						for (int i = 0; i < cursors.Length; i++)
+						{
+							if (cursors[i] == Cursor)
+							{
+								Capture = true;
+								EditMode = EEditMode.EM_Resize;
+								ResizeDir = (EEdgeCorner)i;
+								LastMovePos[0] = e.X;
+								LastMovePos[1] = e.Y;
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -554,33 +601,57 @@ namespace StarboundAnimator
 		{
 			if (e.Button == MouseButtons.None)
 			{
-				if (WorkingFrameItem == null)
+				/*if (Control.ModifierKeys == Keys.Shift)
+				{
+					Cursor = Cursors.NoMove2D;
+				}
+				else*/
+				if (WorkingFrameItem != null)
 				{
 					Matrix IT = LastTransform.Clone();
 					IT.Invert();
 					Point[] p = new Point[] { new Point(e.X, e.Y) };
 					IT.TransformPoints(p);
-					p[0].X -= LastImageOffset.X;
-					p[0].Y -= LastImageOffset.Y;
+					if (Globals.WorkingFrames.Img != null)
+					{
+						p[0].X -= LastImageOffset.X;
+						p[0].Y -= LastImageOffset.Y;
+					}
 					_frameItem FI = Globals.WorkingFrames.GetItemUnder(p[0].X, p[0].Y, ValidFramesFlag);
-					cbFrameNames.Items.Clear();
+					if (WorkingFrameItem == null) cbFrameNames.Items.Clear();
 					if (FI != null)
 					{
+						bool fromList = false;
 						string name;
 						foreach (_frameName fn in FI.names)
 						{
 							if ((fn.source & ValidFramesFlag) == 0) continue;
 							name = fn.name;
-							if (fn.source == Globals.FrameSource_Grid) name += " (default)";
-							else if (fn.source == Globals.FrameSource_List) name += " (list)";
-							else if (fn.source == Globals.FrameSource_Name) name += " (name)";
-							else if (fn.source == Globals.FrameSource_Alias) name += " (alias)";
-							cbFrameNames.Items.Add(name);
+							if (fn.source == FrameSource.Grid) name += " (default)";
+							else if (fn.source == FrameSource.List)
+							{
+								name += " (list)";
+								fromList = true;
+							}
+							else if (fn.source == FrameSource.Name) name += " (name)";
+							else if (fn.source == FrameSource.Alias) name += " (alias)";
+
+							if (WorkingFrameItem == null) cbFrameNames.Items.Add(name);
 						}
-						
-						cbFrameNames.SelectedIndex = 0;
+
+						if (WorkingFrameItem == null) cbFrameNames.SelectedIndex = 0;
+
+						if (fromList)
+						{
+							EEdgeCorner ec = FI.GetEdgeOrCorner(p[0].X, p[0].Y, 5);
+							Cursor = cursors[(int)ec];
+						}
 					}
-					else cbFrameNames.Text = "";
+					else
+					{
+						if (WorkingFrameItem == null) cbFrameNames.Text = "";
+						Cursor = cursors[0];
+					}
 				}
 
 				return;
@@ -595,13 +666,108 @@ namespace StarboundAnimator
 
 				Invalidate();
 			}
+			else if (EditMode == EEditMode.EM_Resize)
+			{
+				ResizeMovement[0] += (e.X - LastMovePos[0]) / (float)ZoomLevels[ZoomIndex];
+				ResizeMovement[1] += (e.Y - LastMovePos[1]) / (float)ZoomLevels[ZoomIndex];
+				LastMovePos[0] = e.X;
+				LastMovePos[1] = e.Y;
+				int rx = (int)ResizeMovement[0];
+				ResizeMovement[0] -= rx;
+				int ry = (int)ResizeMovement[1];
+				ResizeMovement[1] -= ry;
+				if (ResizeDir == EEdgeCorner.TopLeft)
+				{
+					if ((WorkingFrameItem.x + rx >= 0) && (WorkingFrameItem.width - rx > 1))
+					{
+						WorkingFrameItem.x += rx;
+						WorkingFrameItem.width -= rx;
+					}
+					if ((WorkingFrameItem.y + ry >= 0) && (WorkingFrameItem.height - ry > 1))
+					{
+						WorkingFrameItem.y += ry;
+						WorkingFrameItem.height -= ry;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.Top)
+				{
+					if ((WorkingFrameItem.y + ry >= 0) && (WorkingFrameItem.height - ry > 1))
+					{
+						WorkingFrameItem.y += ry;
+						WorkingFrameItem.height -= ry;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.TopRight)
+				{
+					if (WorkingFrameItem.width + rx > 1)
+					{
+						WorkingFrameItem.width += rx;
+					}
+					if ((WorkingFrameItem.y + ry >= 0) && (WorkingFrameItem.height - ry > 1))
+					{
+						WorkingFrameItem.y += ry;
+						WorkingFrameItem.height -= ry;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.Left)
+				{
+					if ((WorkingFrameItem.x + rx >= 0) && (WorkingFrameItem.width - rx > 1))
+					{
+						WorkingFrameItem.x += rx;
+						WorkingFrameItem.width -= rx;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.Right)
+				{
+					if (WorkingFrameItem.width + rx > 1)
+					{
+						WorkingFrameItem.width += rx;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.BottomLeft)
+				{
+					if ((WorkingFrameItem.x + rx >= 0) && (WorkingFrameItem.width - rx > 1))
+					{
+						WorkingFrameItem.x += rx;
+						WorkingFrameItem.width -= rx;
+					}
+					if (WorkingFrameItem.height + ry > 1)
+					{
+						WorkingFrameItem.height += ry;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.Bottom)
+				{
+					if (WorkingFrameItem.height + ry > 1)
+					{
+						WorkingFrameItem.height += ry;
+					}
+				}
+				else if (ResizeDir == EEdgeCorner.BottomRight)
+				{
+					if (WorkingFrameItem.width + rx > 1)
+					{
+						WorkingFrameItem.width += rx;
+					}
+					if (WorkingFrameItem.height + ry > 1)
+					{
+						WorkingFrameItem.height += ry;
+					}
+				}
+
+				if ((rx != 0) || (ry != 0))
+				{
+					Globals.WorkingFrames.UpdateFrameListItem(WorkingFrameItem);
+					Invalidate();
+				}
+			}
 		}
 
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			if (Capture) Capture = false;
 
-			if (EditMode == EEditMode.EM_Translate) EndMode();
+			if (EditMode != EEditMode.EM_None) EndMode();
 		}
 
 		protected override void OnMouseDoubleClick(MouseEventArgs e)
@@ -659,7 +825,7 @@ namespace StarboundAnimator
 				int imgY = 0;
 				int imgWidth = 0;
 				int imgHeight = 0;
-				Image img = Globals.WorkingFrames.AltImg != null ? Globals.WorkingFrames.AltImg : Globals.WorkingFrames.Img;
+				Image img = Globals.WorkingFrames.AltImg ?? Globals.WorkingFrames.Img;
 				if (img != null)
 				{
 					imgWidth = img.Width;
@@ -679,10 +845,10 @@ namespace StarboundAnimator
 					foreach (_frameName fn in fi.names)
 					{
 						if ((fn.source & ValidFramesFlag) == 0) continue;
-						if (fn.source == Globals.FrameSource_Grid) p = penGrid;
-						else if (fn.source == Globals.FrameSource_List) p = penList;
-						else if (fn.source == Globals.FrameSource_Name) p = penName;
-						else if (fn.source == Globals.FrameSource_Alias) p = penAlias;
+						if (fn.source == FrameSource.Grid) p = penGrid;
+						else if (fn.source == FrameSource.List) p = penList;
+						else if (fn.source == FrameSource.Name) p = penName;
+						else if (fn.source == FrameSource.Alias) p = penAlias;
 						else continue;
 
 						e.Graphics.DrawRectangle(p, fi.x + 0.5f + imgX, fi.y + 0.5f + imgY, fi.width - 1, fi.height - 1);
@@ -715,7 +881,7 @@ namespace StarboundAnimator
 					e.Graphics.DrawRectangle(frameControlBoxPen, x - ControlBoxWidth / 2, y - ControlBoxWidth / 2, ControlBoxWidth, ControlBoxWidth);
 
 					// middle right control box
-					x += WorkingFrameItem.width - 1;
+					x += WorkingFrameItem.width;
 					e.Graphics.DrawRectangle(frameControlBoxPen, x - ControlBoxWidth / 2, y - ControlBoxWidth / 2, ControlBoxWidth, ControlBoxWidth);
 
 					// lower left control box

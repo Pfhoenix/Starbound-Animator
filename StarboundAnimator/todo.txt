@@ -1,45 +1,20 @@
 ﻿TODO :
 
-need to implement processing List source frames from JSON and throughout editor code
-
-control boxes for the frameList frames only
-
-need to allow clicking and dragging of control boxes where appropriate
- - on frameitem
-
-tabSource needs to present two refresh options :
- - refresh from file
- - generate from editor
-
-need to figure out how to smartly edit frameList and aliases
-
-need to start on reading/writing the JSON format for the files
- - need to check that NonSerialization works as expected
- - need to start thinking about how to handle the different animation formats
-
-when changing the image name in properties, need to load the new image name
-
 removing an asset path needs to scan for loaded assets and check whether or not to unload them
  - this is going to rely on a contentmanager, so that needs to be done first
-
-tabSource needs to present two refresh options :
- - refresh from file
- - generate from editor
-
-need an option to refresh/rescan the assets lists
- - right click menu in Assets tree should give the option to rescan (if root) or refresh (if not root)
 
 loading resources should happen whenever an asset is opened
 resources loaded by assets that aren't used by anything else should be unloaded
 
-need a project file format
- - animations and frames can either be native to the project or referenced in-place
-
-need to support unpacking Starbound assets also
- - when doing this, ask the user if they want to set the unpacking directory to the stock assets directory list
-
 allow user to change background color of render area
 
+need to start on reading/writing the JSON format for the files
+ - need to start thinking about how to handle the different animation formats
+
 need to have zooming change the center of the screen (affect translation)
+
+when deleting frames
+- same for Name (disable the view option for it)
+  - no good way to check for existing names (a part of frameGrid, so nope)
 
 I also don't like the current VScrollBar on the frames editor interface. Make it look like a slider, damnit.

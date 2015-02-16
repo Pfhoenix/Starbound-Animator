@@ -7,7 +7,7 @@ namespace StarboundAnimator
 {
 	public partial class AddFrameForm : Form
 	{
-		public byte FrameType;
+		public FrameSource FrameType;
 		public string FrameName
 		{
 			get { return tbFrameName.Text; }
@@ -16,7 +16,7 @@ namespace StarboundAnimator
 		{
 			get
 			{
-				if (FrameType == Globals.FrameSource_Name) return cmbGridName.SelectedItem.ToString();
+				if (FrameType == FrameSource.Name) return cmbGridName.SelectedItem.ToString();
 				else return "";
 			}
 		}
@@ -24,7 +24,7 @@ namespace StarboundAnimator
 		{
 			get
 			{
-				if (FrameType == Globals.FrameSource_Alias) return cmbAlias.SelectedItem.ToString();
+				if (FrameType == FrameSource.Alias) return cmbAlias.SelectedItem.ToString();
 				else return "";
 			}
 		}
@@ -32,7 +32,7 @@ namespace StarboundAnimator
 		{
 			get
 			{
-				if (FrameType == Globals.FrameSource_List)
+				if (FrameType == FrameSource.List)
 				{
 					return new Rectangle(int.Parse(tbListX.Text), int.Parse(tbListY.Text), int.Parse(tbListW.Text), int.Parse(tbListH.Text));
 				}
@@ -44,7 +44,7 @@ namespace StarboundAnimator
 		{
 			InitializeComponent();
 
-			FrameType = Globals.FrameSource_None;
+			FrameType = FrameSource.None;
 
 			if (Globals.WorkingFrames == null)
 			{
@@ -76,12 +76,12 @@ namespace StarboundAnimator
 				{
 					if (bGrid)
 					{
-						if (fn.source == Globals.FrameSource_Name)
+						if (fn.source == FrameSource.Name)
 						{
 							bNamed = true;
 							break;
 						}
-						else if (fn.source == Globals.FrameSource_Grid) grid = fn.name;
+						else if (fn.source == FrameSource.Grid) grid = fn.name;
 					}
 
 					if (bAlias)
@@ -145,8 +145,8 @@ namespace StarboundAnimator
 			string grid = "";
 			foreach (_frameName fn in fi.names)
 			{
-				if (fn.source == Globals.FrameSource_Grid) grid = fn.name;
-				else if (fn.source == Globals.FrameSource_Name) grid = "";
+				if (fn.source == FrameSource.Grid) grid = fn.name;
+				else if (fn.source == FrameSource.Name) grid = "";
 
 				cmbAlias.Items.Add(fn.name);
 			}
@@ -161,7 +161,7 @@ namespace StarboundAnimator
 			bool bCheck = true;
 			if (rbGridName.Checked)
 			{
-				FrameType = Globals.FrameSource_Name;
+				FrameType = FrameSource.Name;
 				cmbGridName.Enabled = true;
 				tbListX.Enabled = false;
 				tbListY.Enabled = false;
@@ -172,7 +172,7 @@ namespace StarboundAnimator
 			}
 			else if (rbListFrame.Checked)
 			{
-				FrameType = Globals.FrameSource_List;
+				FrameType = FrameSource.List;
 				tbListX.Enabled = true;
 				tbListY.Enabled = true;
 				tbListW.Enabled = true;
@@ -192,7 +192,7 @@ namespace StarboundAnimator
 			}
 			else if (rbAlias.Checked)
 			{
-				FrameType = Globals.FrameSource_Alias;
+				FrameType = FrameSource.Alias;
 				cmbAlias.Enabled = true;
 				cmbGridName.Enabled = false;
 				tbListX.Enabled = false;
@@ -203,7 +203,7 @@ namespace StarboundAnimator
 			}
 			else
 			{
-				FrameType = Globals.FrameSource_None;
+				FrameType = FrameSource.None;
 				bCheck = false;
 			}
 

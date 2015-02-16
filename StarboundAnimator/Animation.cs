@@ -7,16 +7,15 @@ namespace StarboundAnimator
 {
 	public class Animation : Asset
 	{
+		[NonSerialized]
+		public const string FileExtension = ".animation";
+
 		public static Animation LoadFromFile(string path)
 		{
-			if (!File.Exists(path)) return null;
-
-			string Source = File.ReadAllText(path);
-			int i = Source.IndexOf('\n');
-			if ((i == 0) || (Source[i - 1] != '\r')) Source = Source.Replace("\n", Environment.NewLine);
-
-			Animation a = new Animation();
-			a.Source = Source;
+			Animation a = Asset.LoadFromFile<Animation>(path);
+			if (a != null)
+			{
+			}
 
 			return a;
 		}

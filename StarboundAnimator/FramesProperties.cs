@@ -47,7 +47,10 @@ namespace StarboundAnimator
 		public string Image
 		{
 			get { return Frame.image; }
-			set { Frame.image = value; }
+			set
+			{
+				Frame.ChangeImage(value);
+			}
 		}
 
 		public FrameGridProperty FGP;
@@ -67,11 +70,11 @@ namespace StarboundAnimator
 			}
 		}
 
-		public Dictionary<string, int[]> FrameList
+		/*public Dictionary<string, int[]> FrameList
 		{
 			get { return Frame.frameList; }
 			set { Frame.frameList = FrameList; }
-		}
+		}*/
 
 		public FramesProperties()
 		{
@@ -128,14 +131,24 @@ namespace StarboundAnimator
 		{
 			if ((FrameGrid.size.Width > 0) && (FrameGrid.size.Height > 0))
 			{
-				if (Frame.frameGrid == null) Frame.frameGrid = new _frameGrid();
+				if (Frame.frameGrid == null)
+				{
+					Frame.frameGrid = new _frameGrid();
+					Frame.frameGrid.dimensions.Add(0);
+					Frame.frameGrid.dimensions.Add(0);
+				}
 				Frame.frameGrid.size.Clear();
 				Frame.frameGrid.size.Add(FrameGrid.size.Width);
 				Frame.frameGrid.size.Add(FrameGrid.size.Height);
 			}
 			if ((FrameGrid.dimensions.Width > 0) && (FrameGrid.dimensions.Height > 0))
 			{
-				if (Frame.frameGrid == null) Frame.frameGrid = new _frameGrid();
+				if (Frame.frameGrid == null)
+				{
+					Frame.frameGrid = new _frameGrid();
+					Frame.frameGrid.size.Add(0);
+					Frame.frameGrid.size.Add(0);
+				}
 				Frame.frameGrid.dimensions.Clear();
 				Frame.frameGrid.dimensions.Add(FrameGrid.dimensions.Width);
 				Frame.frameGrid.dimensions.Add(FrameGrid.dimensions.Height);

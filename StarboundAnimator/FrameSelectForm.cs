@@ -37,10 +37,10 @@ namespace StarboundAnimator
 					if ((exclude != null) && exclude.Exists(e => e == fn.name)) continue;
 
 					lvi = lvFrames.Items.Add(fn.name);
-					if (fn.source == Globals.FrameSource_Grid) lvi.SubItems.Add("Grid Default");
-					else if (fn.source == Globals.FrameSource_List) lvi.SubItems.Add("List");
-					else if (fn.source == Globals.FrameSource_Name) lvi.SubItems.Add("Grid Name");
-					else if (fn.source == Globals.FrameSource_Alias) lvi.SubItems.Add("Alias");
+					if (fn.source == FrameSource.Grid) lvi.SubItems.Add("Grid Default");
+					else if (fn.source == FrameSource.List) lvi.SubItems.Add("List");
+					else if (fn.source == FrameSource.Name) lvi.SubItems.Add("Grid Name");
+					else if (fn.source == FrameSource.Alias) lvi.SubItems.Add("Alias");
 				}
 			}
 		}

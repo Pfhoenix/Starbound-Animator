@@ -13,6 +13,7 @@ namespace StarboundAnimator
 		public string Title;
 		public string Path;
 		public List<string> Assets;
+		public bool IsReadOnly;
 
 		public CachedAsset()
 		{
@@ -21,17 +22,43 @@ namespace StarboundAnimator
 			Assets = new List<string>();
 		}
 
-		public CachedAsset(string t, string p)
+		public CachedAsset(string t, string p, bool r)
 		{
 			Title = t;
 			Path = p;
 			Assets = new List<string>();
+			IsReadOnly = r;
 		}
 
 		public void SetAssetsFromFoundList(List<string> foundlist)
 		{
 			Assets.Clear();
 			Assets.AddRange(foundlist);
+		}
+
+		public void AddAsset(string asset)
+		{
+			for (int i = 0; i < Assets.Count; i++)
+			{
+				if (string.Compare(Assets[i], asset, true) > 0)
+				{
+					Assets.Insert(i, asset);
+					return;
+				}
+			}
+		}
+
+		public void RenameAsset(string from, string to)
+		{
+			for (int i = 0; i < Assets.Count; i++)
+			{
+				int si = Assets[i].IndexOf(from);
+				if (si >= 0)
+				{
+					Assets[i] = Assets[i].Substring(0, 1) + to;
+					return;
+				}
+			}
 		}
 	}
 
@@ -45,6 +72,7 @@ namespace StarboundAnimator
 		public string PathToLastProject;
 		// public Color LastCanvasBackgroundColor;
 		public List<CachedAsset> CachedAssets;
+		public string PathToUnpacker;
 
 		public Settings()
         {

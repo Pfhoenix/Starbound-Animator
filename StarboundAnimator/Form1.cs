@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace StarboundAnimator
 {
@@ -44,9 +45,8 @@ namespace StarboundAnimator
 			}
 			// load last project here
 
-			if (Globals.AppSettings.PathToLastProject == "") tabPages.SelectedTab = tabAssets;
+			//if (Globals.AppSettings.PathToLastProject == "") tabPages.SelectedTab = tabAssets;
         }
-
 
 
 		public void RemoveAssetGroupByTitle(string title)
@@ -158,8 +158,8 @@ namespace StarboundAnimator
 
 					// adjust this to set animation or frame image
 					int tni = 0;
-					if (split[split.Length - 1].EndsWith("animation")) tni = ASSET_IMAGELIST_ANIMATIONUNTESTED;
-					else if (split[split.Length - 1].EndsWith("frames")) tni = ASSET_IMAGELIST_FRAMESUNTESTED;
+					if (split[split.Length - 1].EndsWith(Animation.FileExtension)) tni = ASSET_IMAGELIST_ANIMATIONUNTESTED;
+					else if (split[split.Length - 1].EndsWith(Frames.FileExtension)) tni = ASSET_IMAGELIST_FRAMESUNTESTED;
 					curnodepath[curnodepath.Count - 1].Nodes.Add(new AssetTreeNode(split[split.Length - 1], tni, tni, null));
 				}
 
@@ -242,7 +242,7 @@ namespace StarboundAnimator
 			}
 		}
 
-		string GetPathForNode(TreeNode tn)
+		string GetFullPathForNode(TreeNode tn)
 		{
 			string path = "";
 			string root = "";
@@ -268,12 +268,45 @@ namespace StarboundAnimator
 			else return "";
 		}
 
+		string GetRelativePathForNode(TreeNode tn)
+		{
+			string path = "";
+
+			while (tn != null)
+			{
+				if (tn.Parent == null) return path;
+				else path += "\\" + tn.Text;
+
+				tn = tn.Parent;
+			}
+
+			return "";
+		}
+
 		private void tvAssets_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Right)
 			{
 				TreeNode tn = tvAssets.GetNodeAt(e.X, e.Y);
 				tvAssets.SelectedNode = tn;
+				AssetTreeNode atn = tn as AssetTreeNode;
+				for (int i = 0; i < cmsAssets.Items.Count; i++)
+				{
+					cmsAssets.Items[i].Visible = true;
+				}
+				// this is a folder
+				if (atn == null)
+				{
+					cmsAssets.Items[3].Visible = cmsAssets.Items[4].Visible = cmsAssets.Items[5].Visible = cmsAssets.Items[6].Visible = false;
+				}
+				// this is an asset
+				else
+				{
+					// show the add menu only if the user right-clicked a folder
+					cmsAssets.Items[2].Visible = cmsAssets.Items[3].Visible = false;
+					cmsAssets.Items[4].Enabled = cmsAssets.Items[6].Enabled = !atn.Asset.bReadOnly;
+				}
+
 				cmsAssets.Show(tvAssets, e.X, e.Y);
 			}
 		}
@@ -290,47 +323,34 @@ namespace StarboundAnimator
 				tvAssets.SelectedNode = null;
 				tvAssets.Nodes.Remove(sn);
 				CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => title == tca.Title);
-				ca.Assets = AddAssetPath(title, path, null);
+				if (ca != null) ca.Assets = AddAssetPath(title, path, null);
 			}
-			else if (tvAssets.SelectedNode.Text.EndsWith(".animation"))
+			else if (tvAssets.SelectedNode.Text.EndsWith(Animation.FileExtension))
 			{
 			}
-			else if (tvAssets.SelectedNode.Text.EndsWith(".frames"))
+			else if (tvAssets.SelectedNode.Text.EndsWith(Frames.FileExtension))
 			{
+				// delete the existing asset and load from file
+				AssetTreeNode atn = tvAssets.SelectedNode as AssetTreeNode;
+				UnsetWorkingFrames();
+				atn.Asset = null;
+				tvAssets_AfterSelect(tvAssets, new TreeViewEventArgs(atn));
 			}
 			else
 			{
 				string title = tvAssets.SelectedNode.Text;
-				string path = "";
-				string root = "";
-
-				TreeNode tn = tvAssets.SelectedNode;
-				while (tn != null)
-				{
-					if (tn.Parent == null)
-					{
-						path = "\\" + path;
-						root = tn.Text;
-					}
-					else
-					{
-						if (path == "") path = tn.Text;
-						else path = tn.Text + '\\' + path;
-					}
-
-					tn = tn.Parent;
-				}
+				string path = GetRelativePathForNode(tvAssets.SelectedNode);
+				CachedAsset ca = GetCachedAssetForNode(tvAssets.SelectedNode);
 
 				// change this to a proper unload+clear
 				TreeNode sn = tvAssets.SelectedNode;
 				TreeNode pn = sn.Parent;
 				tvAssets.SelectedNode = null;
 				tvAssets.Nodes.Remove(sn);
-				CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => root == tca.Title);
+				int i = ca.Assets.FindIndex(a => a.StartsWith(path));
 				ca.Assets.RemoveAll(tca => tca.StartsWith(path + '\\'));
 				List<string> foundlist = AddAssetPath(title, ca.Path + path, pn);
-				int i = ca.Assets.IndexOf(ca.Path + path);
-				ca.Assets.InsertRange(i + 1, foundlist);
+				ca.Assets.InsertRange(i, foundlist);
 			}
 		}
 
@@ -341,125 +361,135 @@ namespace StarboundAnimator
 			convertToListToolStripMenuItem.Enabled = bAdded;
 		}
 
+		bool GetReadOnlyStatus(TreeNode tn)
+		{
+			while (tn.Parent != null) tn = tn.Parent;
+			CachedAsset ca = Globals.AppSettings.CachedAssets.Find(a => a.Title == tn.Text);
+			if (ca == null) return true;
+			return ca.IsReadOnly;
+		}
+
 		private void tvAssets_AfterSelect(object sender, TreeViewEventArgs e)
 		{
-			if (e.Node.Text.EndsWith(".frames"))
+			if (e.Node.Text.EndsWith(Frames.FileExtension))
 			{
-				UnsetWorkingAnimation();
+				//UnsetWorkingAnimation();
+				//UnsetWorkingFrames();
 
 				Frames frame = null;
+				string framepath = GetFullPathForNode(e.Node);
 				if ((e.Node as AssetTreeNode).Asset != null)
 				{
 					frame = (e.Node as AssetTreeNode).Asset as Frames;
 				}
 				else
 				{
-					string framepath = GetPathForNode(e.Node);
 					frame = Frames.LoadFromFile(framepath);
-					if (frame != null)
+					(e.Node as AssetTreeNode).Asset = frame;
+				}
+
+				if (frame != null)
+				{
+					frame.bReadOnly = GetReadOnlyStatus(e.Node);
+					e.Node.ImageIndex = ASSET_IMAGELIST_FRAMES;
+					e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMES;
+
+					if (string.IsNullOrEmpty(frame.image))
 					{
-						frame.bReadOnly = true;
-						(e.Node as AssetTreeNode).Asset = frame;
-						e.Node.ImageIndex = ASSET_IMAGELIST_FRAMES;
-						e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMES;
-
-						if (string.IsNullOrEmpty(frame.image))
+						string imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length);
+						string imagename = Path.GetFileNameWithoutExtension(framepath) + ".png";
+						if (File.Exists(imagepath + imagename))
 						{
-							string imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length);
-							string imagename = Path.GetFileNameWithoutExtension(framepath) + ".png";
-							if (File.Exists(imagepath + imagename))
+							DialogResult dr = MessageBox.Show("Image is unset! Do you want to try using " + imagename + "?", "Missing image", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+							if (dr == DialogResult.Yes)
 							{
-								DialogResult dr = MessageBox.Show("Image is unset! Do you want to try using " + imagename + "?", "Missing image", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-								if (dr == DialogResult.Yes)
+								frame.image = imagename;
+								try
 								{
-									frame.image = imagename;
-									try
+									Image img = Image.FromFile(imagepath + imagename);
+									frame.Img = img.Clone() as Image;
+									img.Dispose();
+								}
+								catch
+								{
+									if (frame.Img != null)
 									{
-										Image img = Image.FromFile(imagepath + imagename);
-										frame.Img = img.Clone() as Image;
-										img.Dispose();
-									}
-									catch
-									{
-										if (frame.Img != null)
-										{
-											frame.Img.Dispose();
-											frame.Img = null;
-										}
+										frame.Img.Dispose();
+										frame.Img = null;
 									}
 								}
-							}
-						}
-						else
-						{
-							// load the referenced image
-							// going to have issues with images using relative paths
-
-							string imagepath = "";
-
-							if (frame.image.Contains("/"))
-							{
-							}
-							else
-							{
-								imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length) + frame.image;
-							}
-
-							try
-							{
-								Image img = Image.FromFile(imagepath);
-								frame.Img = img.Clone() as Image;
-								img.Dispose();
-							}
-							catch
-							{
-								if (frame.Img != null)
-								{
-									frame.Img.Dispose();
-									frame.Img = null;
-								}
-							}
-						}
-
-						if (frame.Img == null)
-						{
-							int w = 0;
-							int h = 0;
-							if (frame.frameGrid != null)
-							{
-								w = frame.frameGrid.size[0] * frame.frameGrid.dimensions[0];
-								h = frame.frameGrid.size[1] * frame.frameGrid.dimensions[1];
-							}
-							else if (frame.frameList != null)
-							{
-							}
-							if ((w > 0) && (h > 0))
-							{
-								Bitmap bmp = new Bitmap(w, h);
-								using (Graphics graph = Graphics.FromImage(bmp))
-								{
-									Rectangle ImageSize = new Rectangle(0, 0, w, h);
-									graph.FillRectangle(Brushes.Black, ImageSize);
-								}
-								frame.Img = bmp;
 							}
 						}
 					}
 					else
 					{
-						e.Node.ImageIndex = ASSET_IMAGELIST_FRAMESBAD;
-						e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMESBAD;
-					}
-				}
+						// load the referenced image
+						// going to have issues with images using relative paths
 
-				if (frame != null) SetWorkingFrames(frame);
-				else tbSource.Text = "";
+						string imagepath = "";
+
+						if (frame.image.Contains("/"))
+						{
+						}
+						else
+						{
+							imagepath = framepath.Substring(0, framepath.Length - Path.GetFileName(framepath).Length) + frame.image;
+						}
+
+						try
+						{
+							Image img = Image.FromFile(imagepath);
+							frame.Img = img.Clone() as Image;
+							img.Dispose();
+						}
+						catch
+						{
+							if (frame.Img != null)
+							{
+								frame.Img.Dispose();
+								frame.Img = null;
+							}
+						}
+					}
+
+					if (frame.Img == null)
+					{
+						int w = 0;
+						int h = 0;
+						if (frame.frameGrid != null)
+						{
+							w = frame.frameGrid.size[0] * frame.frameGrid.dimensions[0];
+							h = frame.frameGrid.size[1] * frame.frameGrid.dimensions[1];
+						}
+						else if (frame.frameList != null)
+						{
+						}
+						if ((w > 0) && (h > 0))
+						{
+							Bitmap bmp = new Bitmap(w, h);
+							using (Graphics graph = Graphics.FromImage(bmp))
+							{
+								Rectangle ImageSize = new Rectangle(0, 0, w, h);
+								graph.FillRectangle(Brushes.Black, ImageSize);
+							}
+							frame.Img = bmp;
+						}
+					}
+
+					SetWorkingFrames(frame);
+				}
+				else
+				{
+					tbSource.Text = "";
+					e.Node.ImageIndex = ASSET_IMAGELIST_FRAMESBAD;
+					e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMESBAD;
+				}
 
 				if (tabWorkspace.SelectedTab == tabEditor) tabEditor.Invalidate();
 				else tabWorkspace.SelectedTab = tabEditor;
 				tabWorkspace.Visible = true;
 			}
-			else if (e.Node.Text.EndsWith(".animation"))
+			else if (e.Node.Text.EndsWith(Animation.FileExtension))
 			{
 				Animation anim = null;
 				if ((e.Node as AssetTreeNode).Asset != null)
@@ -468,7 +498,7 @@ namespace StarboundAnimator
 				}
 				else
 				{
-					anim = Animation.LoadFromFile(GetPathForNode(e.Node));
+					anim = Animation.LoadFromFile(GetFullPathForNode(e.Node));
 					//anim = new Animation(GetPathForNode(e.Node));
 					(e.Node as AssetTreeNode).Asset = anim;
 				}
@@ -479,17 +509,19 @@ namespace StarboundAnimator
 				tabWorkspace.SelectedTab = tabSource;
 				tabWorkspace.Visible = true;
 			}
-			else if (e.Node != null)
+			/*else if (e.Node != null)
 			{
 				// clear out whatever was there
 
 				tabWorkspace.Visible = false;
 				tbSource.Text = "";
-			}
+			}*/
 		}
 
 		private void unpackStarboundAssetsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			UnpackForm uf = new UnpackForm();
+			uf.ShowDialog();
 			/* check registry for Steam install location
 			if exists, check for File.Exists("Steam/Steamapps/common/Starbound/Win32/asset_unpacker.exe")
 			{
@@ -705,7 +737,7 @@ namespace StarboundAnimator
 						{
 							foreach (_frameName fn in fi.names)
 							{
-								if ((fn.source == Globals.FrameSource_Grid) || (fn.source == Globals.FrameSource_Name))
+								if ((fn.source == FrameSource.Grid) || (fn.source == FrameSource.Name))
 								{
 									if (Globals.WorkingFrames.aliases.ContainsValue(fn.name))
 									{
@@ -752,6 +784,187 @@ namespace StarboundAnimator
 				pnlEditor.UpdateFrameShowButtons(true);
 				pnlEditor.Invalidate();
 			}
+		}
+
+		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			AboutForm af = new AboutForm();
+			af.ShowDialog();
+		}
+
+		private void refreshFromFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (Globals.WorkingFrames != null)
+			{
+				tbSource.Text = Globals.WorkingFrames.Source;
+			}
+			else tbSource.Text = "";
+		}
+
+		private void generateFromEditorToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (Globals.WorkingFrames != null)
+			{
+				JsonSerializerSettings jss = new JsonSerializerSettings();
+				jss.NullValueHandling = NullValueHandling.Ignore;
+				string text = JsonConvert.SerializeObject(Globals.WorkingFrames, Formatting.Indented, jss);
+				//text = text.Replace("\r\n", Environment.NewLine);
+				tbSource.Text = text;
+			}
+		}
+
+		private void saveToolStripMenuItem1_Click(object sender, EventArgs e)
+		{
+			AssetTreeNode atn = tvAssets.SelectedNode as AssetTreeNode;
+			atn.Asset.SaveToFile();
+		}
+
+		private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			AssetTreeNode atn = tvAssets.SelectedNode as AssetTreeNode;
+			if (atn == null) return;
+			if (DialogResult.Yes == MessageBox.Show("Are you sure you want to delete " + atn.Text + "? This operation permanently deletes the file.", "Deletion Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				try
+				{
+					File.Delete(Path.Combine(atn.Asset.Filename, atn.Asset.FilePath));
+					UnsetWorkingFrames();
+					atn.Remove();
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("Error: " + ex.Message, "Deletion error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
+			}
+		}
+
+		private void folderToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			string path = GetFullPathForNode(tvAssets.SelectedNode);
+			string dirname = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
+			TreeNode tn = new TreeNode(dirname);
+			tn.ImageIndex = ASSET_IMAGELIST_FOLDER;
+			tn.SelectedImageIndex = ASSET_IMAGELIST_FOLDER;
+			Directory.CreateDirectory(Path.Combine(path, dirname));
+			tvAssets.SelectedNode.Nodes.Add(tn);
+		}
+
+		CachedAsset GetCachedAssetForNode(TreeNode tn)
+		{
+			while (tn.Parent != null)
+				tn = tn.Parent;
+
+			foreach (CachedAsset ca in Globals.AppSettings.CachedAssets)
+			{
+				if (ca.Title == tn.Text) return ca;
+			}
+
+			return null;
+		}
+
+		void UpdateFilePaths(TreeNode tn, string path)
+		{
+			AssetTreeNode atn = tn as AssetTreeNode;
+			if (atn != null)
+			{
+				atn.Asset.FilePath = path;
+			}
+			else
+			{
+				string np = Path.Combine(path, tn.Text);
+				foreach (TreeNode t in tn.Nodes)
+					UpdateFilePaths(t, np);
+			}
+		}
+
+		private void tvAssets_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+		{
+			if (string.IsNullOrEmpty(e.Label))
+			{
+				e.CancelEdit = true;
+				return;
+			}
+
+			AssetTreeNode atn = e.Node as AssetTreeNode;
+			// renaming an asset file
+			if (atn != null)
+			{
+				if (((atn.Asset is Frames) && !e.Label.EndsWith(Frames.FileExtension)) ||
+					((atn.Asset is Animation) && !e.Label.EndsWith(Animation.FileExtension)))
+				{
+					MessageBox.Show("The file extension must the file type!", "File extension error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.CancelEdit = true;
+					return;
+				}
+
+				if (File.Exists(Path.Combine(atn.Asset.FilePath, e.Label)))
+				{
+					MessageBox.Show("The new file name must not already be in use!", "Existing file error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.CancelEdit = true;
+					return;
+				}
+
+				try
+				{
+					if (File.Exists(Path.Combine(atn.Asset.FilePath, atn.Asset.Filename)))
+						File.Move(Path.Combine(atn.Asset.FilePath, atn.Asset.Filename), Path.Combine(atn.Asset.FilePath, e.Label));
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("Error: " + ex.Message, "File rename error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.CancelEdit = true;
+					return;
+				}
+
+				CachedAsset ca = GetCachedAssetForNode(e.Node);
+				ca.RenameAsset(atn.Asset.Filename, e.Label);
+				atn.Asset.Filename = e.Label;
+			}
+			else
+			{
+				string dirpath = GetFullPathForNode(e.Node.Parent);
+
+				if (Directory.Exists(Path.Combine(dirpath, e.Label)))
+				{
+					MessageBox.Show("The new directory name already exists!", "Existing directory error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.CancelEdit = true;
+					return;
+				}
+
+				try
+				{
+					Directory.Move(Path.Combine(dirpath, e.Node.Text), Path.Combine(dirpath, e.Label));
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("Error: " + ex.Message, "Directory rename error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.CancelEdit = true;
+					return;
+				}
+
+				// all assets under this branch need their paths recalculated
+				UpdateFilePaths(e.Node, Path.Combine(dirpath, e.Label));
+			}
+		}
+
+		private void tvAssets_BeforeLabelEdit(object sender, NodeLabelEditEventArgs e)
+		{
+			if (e.Node.Parent == null)
+			{
+				e.CancelEdit = true;
+			}
+		}
+
+		private void framesToolStripMenuItem3_Click(object sender, EventArgs e)
+		{
+			Frames f = new Frames();
+			f.Filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + Frames.FileExtension;
+			f.FilePath = GetFullPathForNode(tvAssets.SelectedNode);
+			AssetTreeNode atn = new AssetTreeNode(f.Filename, ASSET_IMAGELIST_FRAMES, ASSET_IMAGELIST_FRAMES, f);
+			tvAssets.SelectedNode.Nodes.Add(atn);
+			CachedAsset ca = GetCachedAssetForNode(tvAssets.SelectedNode);
+			ca.AddAsset(GetRelativePathForNode(atn));
 		}
     }
 }

@@ -91,6 +91,7 @@
 			// 
 			// lvASP
 			// 
+			this.lvASP.CheckBoxes = true;
 			this.lvASP.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
@@ -136,6 +137,7 @@
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
 			this.Text = "Settings";
+			this.Shown += new System.EventHandler(this.SettingsForm_Shown);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

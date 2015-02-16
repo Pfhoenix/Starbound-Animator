@@ -18,13 +18,6 @@ namespace StarboundAnimator
 		public SettingsForm()
 		{
 			InitializeComponent();
-
-			ListViewItem lvi;
-			for (int i = 0; i < Globals.AppSettings.CachedAssets.Count; i++)
-			{
-				lvi = lvASP.Items.Add(Globals.AppSettings.CachedAssets[i].Title);
-				lvi.SubItems.Add(Globals.AppSettings.CachedAssets[i].Path);
-			}
 		}
 
 		private void btnCancel_Click(object sender, EventArgs e)
@@ -158,13 +151,46 @@ namespace StarboundAnimator
 			}
 
 			// we don't want duplicate title change entries
-			if (PathsToChange.Exists(s => s == lvASP.Items[e.Item].SubItems[0].Text)) return;
+			if (PathsToChange.Exists(s => s == lvASP.Items[e.Item].SubItems[1].Text)) return;
 
 			// we don't need to manage a title change if this item is in PathsToAdd
-			if (PathsToAdd.Exists(s => s == lvASP.Items[e.Item].SubItems[0].Text)) return;
+			if (PathsToAdd.Exists(s => s == lvASP.Items[e.Item].SubItems[1].Text)) return;
 
 			// we need to track this title change
-			PathsToChange.Add(lvASP.Items[e.Item].SubItems[0].Text);
+			PathsToChange.Add(lvASP.Items[e.Item].SubItems[1].Text);
+		}
+
+		private void lvASP_ItemCheck(object sender, ItemCheckEventArgs e)
+		{
+			string m = "Are you sure you want to set all of the assets under " + lvASP.Items[e.Index].Text + " to be " + (e.NewValue == CheckState.Checked ? "read-only?" : "edittable?");
+			if (DialogResult.Yes == MessageBox.Show(m, "Change read-only status", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+			{
+				foreach (CachedAsset ca in Globals.AppSettings.CachedAssets)
+				{
+					if (ca.Title == lvASP.Items[e.Index].Text)
+					{
+						ca.IsReadOnly = e.NewValue == CheckState.Checked;
+						break;
+					}
+				}
+			}
+			else
+			{
+				e.NewValue = e.CurrentValue;
+			}
+		}
+
+		private void SettingsForm_Shown(object sender, EventArgs e)
+		{
+			ListViewItem lvi;
+			for (int i = 0; i < Globals.AppSettings.CachedAssets.Count; i++)
+			{
+				lvi = lvASP.Items.Add(Globals.AppSettings.CachedAssets[i].Title);
+				lvi.SubItems.Add(Globals.AppSettings.CachedAssets[i].Path);
+				lvi.Checked = Globals.AppSettings.CachedAssets[i].IsReadOnly;
+			}
+
+			lvASP.ItemCheck += lvASP_ItemCheck;
 		}
 	}
 }

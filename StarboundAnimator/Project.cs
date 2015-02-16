@@ -9,16 +9,19 @@ namespace StarboundAnimator
 	[Serializable]
 	public class Project
 	{
-		string FilePath;
+		[XmlIgnore]
+		public string FilePath;
 
 		public string Title;
+		public List<string> FramePaths;
 		public List<string> AnimPaths;	// these are relative paths, mirroring Starbounds setup, i.e. "/animations/blah/whatever.animation"
 
 		public Project()
 		{
 			FilePath = "";
-			Title = "default project title";
+			Title = "Untitled project";
 			AnimPaths = new List<string>();
+			FramePaths = new List<string>();
 		}
 
 		public static Project LoadFromFile(string path)
@@ -30,7 +33,7 @@ namespace StarboundAnimator
 			{
 				XmlSerializer xmls = new XmlSerializer(typeof(Project));
 				p = xmls.Deserialize(fs) as Project;
-				if (p != null) p.FilePath = path;
+				if (p != null) p.FilePath = Path.GetDirectoryName(path);
 			}
 			fs.Close();
 

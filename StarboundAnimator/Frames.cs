@@ -7,13 +7,15 @@ using Newtonsoft.Json;
 
 namespace StarboundAnimator
 {
+	public enum EEdgeCorner { None = 0, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left }
+
 	public class _frameName
 	{
 		public string name;
-		public byte source;
+		public FrameSource source;
 		public string aliasof;
 
-		public _frameName(string n, byte s, string ao)
+		public _frameName(string n, FrameSource s, string ao)
 		{
 			name = n;
 			source = s;
@@ -37,7 +39,7 @@ namespace StarboundAnimator
 			height = H;
 		}
 
-		public void AddName(string n, byte s, string ao = "")
+		public void AddName(string n, FrameSource s, string ao = "")
 		{
 			names.Add(new _frameName(n, s, ao));
 		}
@@ -45,6 +47,26 @@ namespace StarboundAnimator
 		public void RemoveName(string n)
 		{
 			names.RemoveAll(fn => fn.name == n);
+		}
+
+		public EEdgeCorner GetEdgeOrCorner(int px, int py, int tolerance)
+		{
+			if (Math.Abs(px - x) <= tolerance)
+			{
+				if (Math.Abs(py - y) <= tolerance) return EEdgeCorner.TopLeft;
+				if (Math.Abs(py - y - height) <= tolerance) return EEdgeCorner.BottomLeft;
+				return EEdgeCorner.Left;
+			}
+			if (Math.Abs(px - x - width) <= tolerance)
+			{
+				if (Math.Abs(py - y) <= tolerance) return EEdgeCorner.TopRight;
+				if (Math.Abs(py - y - height) <= tolerance) return EEdgeCorner.BottomRight;
+				return EEdgeCorner.Right;
+			}
+			if (Math.Abs(py - y) <= tolerance) return EEdgeCorner.Top;
+			if (Math.Abs(py - y - height) <= tolerance) return EEdgeCorner.Bottom;
+
+			return EEdgeCorner.None;
 		}
 	}
 
@@ -116,7 +138,7 @@ namespace StarboundAnimator
 		public Dictionary<string, string> aliases;
 
 		[NonSerialized]
-		public bool bReadOnly;
+		public new const string FileExtension = ".frames";
 		[NonSerialized]
 		public Image Img;
 		[NonSerialized]
@@ -143,16 +165,9 @@ namespace StarboundAnimator
 
 		public static Frames LoadFromFile(string path)
 		{
-			if (!File.Exists(path)) return null;
-
-			string Source = File.ReadAllText(path);
-			int i = Source.IndexOf('\n');
-			if ((i == 0) || (Source[i - 1] != '\r')) Source = Source.Replace("\n", Environment.NewLine);
-
-			Frames frame = JsonConvert.DeserializeObject<Frames>(Source);
+			Frames frame = Asset.LoadFromFile<Frames>(path);
 			if (frame != null)
 			{
-				frame.Source = Source;
 				// sanity check loaded data
 				if (frame.frameGrid != null)
 				{
@@ -170,9 +185,9 @@ namespace StarboundAnimator
 				{
 					if (frame.frameGrid.names.Count == 0) frame.frameGrid.names = null;
 				}
-			}
 
-			frame.RecalcFrameItems();
+				frame.RecalcFrameItems();
+			}
 
 			return frame;
 		}
@@ -188,7 +203,7 @@ namespace StarboundAnimator
 				_frameItem fi = GetFrameItemOf(d);
 				if (on == "")
 				{
-					fi.AddName(n, Globals.FrameSource_Name);
+					fi.AddName(n, FrameSource.Name);
 				}
 				else
 				{
@@ -222,7 +237,7 @@ namespace StarboundAnimator
 
 		public void SetFrameToList(_frameItem fi, _frameName fn)
 		{
-			fn.source = Globals.FrameSource_List;
+			fn.source = FrameSource.List;
 			if (frameList == null) frameList = new Dictionary<string, int[]>();
 			frameList.Add(fn.name, new int[] { fi.x, fi.y, fi.x + fi.width - 1, fi.y + fi.height - 1 });
 		}
@@ -236,10 +251,28 @@ namespace StarboundAnimator
 				ListFrameItems.Add(item);
 			}
 			LookupFrameItems.Add(n, item);
-			item.AddName(n, Globals.FrameSource_List);
+			item.AddName(n, FrameSource.List);
 
 			if (frameList == null) frameList = new Dictionary<string, int[]>();
 			frameList.Add(n, new int[] { x, y, x + w - 1, y + h - 1 });
+		}
+
+		public void UpdateFrameListItem(_frameItem fi)
+		{
+			if (frameList == null) return;
+			foreach (_frameName fn in fi.names)
+			{
+				if (fn.source == FrameSource.List)
+				{
+					int[] v = frameList[fn.name];
+					v[0] = fi.x;
+					v[1] = fi.y;
+					v[2] = fi.width;
+					v[3] = fi.height;
+					frameList[fn.name] = v;
+					break;
+				}
+			}
 		}
 
 		public void AddAlias(string a, string ao)
@@ -247,11 +280,32 @@ namespace StarboundAnimator
 			_frameItem fi = GetFrameItemOf(ao);
 			if (fi != null)
 			{
-				fi.AddName(a, Globals.FrameSource_Alias, ao);
+				fi.AddName(a, FrameSource.Alias, ao);
 				LookupFrameItems.Add(a, fi);
 				if (aliases == null) aliases = new Dictionary<string, string>();
 				aliases.Add(a, ao);
 			}
+		}
+
+		public string ChangeImage(string nifn)
+		{
+			string err = "";
+			string path = Path.Combine(FilePath, nifn);
+			try
+			{
+				Image img = Image.FromFile(path);
+				if (img != null)
+				{
+					Img = img;
+					image = nifn;
+				}
+			}
+			catch (Exception e)
+			{
+				err = e.Message;
+			}
+
+			return err;
 		}
 
 		public void ConvertGridtoList(bool bConvertDefaults, bool bConvertNames)
@@ -269,7 +323,7 @@ namespace StarboundAnimator
 				for (int j = 0; j < fi.names.Count; j++)
 				{
 					fn = fi.names[j];
-					if (fn.source == Globals.FrameSource_Grid)
+					if (fn.source == FrameSource.Grid)
 					{
 						if (bConvertDefaults) SetFrameToList(fi, fn);
 						else
@@ -278,7 +332,7 @@ namespace StarboundAnimator
 							LookupFrameItems.Remove(fn.name);
 						}
 					}
-					else if (fn.source == Globals.FrameSource_Name)
+					else if (fn.source == FrameSource.Name)
 					{
 						if (bConvertNames) SetFrameToList(fi, fn);
 						else
@@ -306,7 +360,7 @@ namespace StarboundAnimator
 					{
 						name = (i + j * frameGrid.dimensions[0]).ToString();
 						item = new _frameItem(i * frameGrid.size[0], j * frameGrid.size[1], frameGrid.size[0], frameGrid.size[1]);
-						item.AddName(name, Globals.FrameSource_Grid);
+						item.AddName(name, FrameSource.Grid);
 						LookupFrameItems.Add(name, item);
 						ListFrameItems.Add(item);
 					}
@@ -330,7 +384,7 @@ namespace StarboundAnimator
 								ListFrameItems.Add(item);
 							}
 							LookupFrameItems.Add(name, item);
-							item.AddName(name, Globals.FrameSource_Name);
+							item.AddName(name, FrameSource.Name);
 						}
 				}
 			}
@@ -346,7 +400,7 @@ namespace StarboundAnimator
 						ListFrameItems.Add(item);
 					}
 					LookupFrameItems.Add(entry.Key, item);
-					item.AddName(entry.Key, Globals.FrameSource_List);
+					item.AddName(entry.Key, FrameSource.List);
 				}
 			}
 
@@ -358,13 +412,13 @@ namespace StarboundAnimator
 					if (!LookupFrameItems.ContainsKey(entry.Value)) continue;
 
 					item = LookupFrameItems[entry.Value];
-					item.AddName(entry.Key, Globals.FrameSource_Alias, entry.Value);
+					item.AddName(entry.Key, FrameSource.Alias, entry.Value);
 					LookupFrameItems.Add(entry.Key, item);
 				}
 			}
 		}
 
-		public _frameItem GetItemUnder(int x, int y, byte sourceflags)
+		public _frameItem GetItemUnder(int x, int y, FrameSource sourceflags)
 		{
 			foreach (_frameItem fi in ListFrameItems)
 			{
@@ -425,13 +479,13 @@ namespace StarboundAnimator
 		{
 			bool bRemove = false;
 
-			if ((fn.source == Globals.FrameSource_List) && (frameList != null))
+			if ((fn.source == FrameSource.List) && (frameList != null))
 			{
 				frameList.Remove(fn.name);
 				if (frameList.Count == 0) frameList = null;
 				bRemove = true;
 			}
-			else if ((fn.source == Globals.FrameSource_Name) && (frameGrid != null) && (frameGrid.names != null))
+			else if ((fn.source == FrameSource.Name) && (frameGrid != null) && (frameGrid.names != null))
 			{
 				for (int i = 0; i < frameGrid.names.Count; i++)
 				{
@@ -448,7 +502,7 @@ namespace StarboundAnimator
 					if (bRemove) break;
 				}
 			}
-			else if ((fn.source == Globals.FrameSource_Alias) && (aliases != null))
+			else if ((fn.source == FrameSource.Alias) && (aliases != null))
 			{
 				aliases.Remove(fn.name);
 				if (aliases.Count == 0) aliases = null;
@@ -471,7 +525,7 @@ namespace StarboundAnimator
 		{
 			for (int i = 0; i < fi.names.Count; i++)
 			{
-				if (fi.names[i].source == Globals.FrameSource_Alias)
+				if (fi.names[i].source == FrameSource.Alias)
 				{
 					_frameName fn = fi.names.Find(tfn => tfn.name == fi.names[i].aliasof);
 					if (fn == null)
@@ -496,7 +550,7 @@ namespace StarboundAnimator
 				for (int j = 0; j < fi.names.Count; j++)
 				{
 					fn = fi.names[j];
-					if ((fn.source == Globals.FrameSource_Grid) || (fn.source == Globals.FrameSource_Name))
+					if ((fn.source == FrameSource.Grid) || (fn.source == FrameSource.Name))
 					{
 						fi.names.RemoveAt(j--);
 						LookupFrameItems.Remove(fn.name);

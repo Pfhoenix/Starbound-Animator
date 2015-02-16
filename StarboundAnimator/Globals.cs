@@ -4,6 +4,17 @@ using System.Windows.Forms;
 
 namespace StarboundAnimator
 {
+	[Flags]
+	public enum FrameSource
+	{
+		None = 0,
+		Grid = 1,
+		Name = Grid << 1,
+		Alias = Name << 1,
+		List = Alias << 1,
+		All = List | Alias | Name | Grid
+	}
+
 	public class Globals
 	{
 		public static Form1 AppForm;
@@ -12,12 +23,8 @@ namespace StarboundAnimator
 		public static Frames WorkingFrames;
 		public static Animation WorkingAnimation;
 
-		public const int FrameSource_None = 0;
-		public const int FrameSource_Grid = 1;
-		public const int FrameSource_Name = 2;
-		public const int FrameSource_Alias = 4;
-		public const int FrameSource_List = 8;
-		public const int FrameSource_All = 15;
-
+		public const int MajVer = 0;
+		public const int MinVer = 3;
+		public static string AppVersion = "v" + MajVer.ToString() + "." + MinVer.ToString();
 	}
 }
