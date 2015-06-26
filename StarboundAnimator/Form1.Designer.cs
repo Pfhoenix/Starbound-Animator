@@ -40,7 +40,9 @@
 			this.cmsSource = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.refreshFromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.generateFromEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.tabEditor = new System.Windows.Forms.TabPage();
+			this.tabFramesEditor = new System.Windows.Forms.TabPage();
+			this.pnlFramesEditor = new StarboundAnimator.EditorPanel();
+			this.tabAnimationEditor = new System.Windows.Forms.TabPage();
 			this.pgProperties = new System.Windows.Forms.PropertyGrid();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,7 +79,7 @@
 			this.removeFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
 			this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.pnlEditor = new StarboundAnimator.EditorPanel();
+			this.tabScriptEditor = new System.Windows.Forms.TabPage();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
@@ -87,7 +89,7 @@
 			this.tabWorkspace.SuspendLayout();
 			this.tabSource.SuspendLayout();
 			this.cmsSource.SuspendLayout();
-			this.tabEditor.SuspendLayout();
+			this.tabFramesEditor.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.cmsAssets.SuspendLayout();
 			this.cmsEditorFrames.SuspendLayout();
@@ -169,7 +171,9 @@
 			// 
 			this.tabWorkspace.Alignment = System.Windows.Forms.TabAlignment.Bottom;
 			this.tabWorkspace.Controls.Add(this.tabSource);
-			this.tabWorkspace.Controls.Add(this.tabEditor);
+			this.tabWorkspace.Controls.Add(this.tabFramesEditor);
+			this.tabWorkspace.Controls.Add(this.tabAnimationEditor);
+			this.tabWorkspace.Controls.Add(this.tabScriptEditor);
 			this.tabWorkspace.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabWorkspace.Location = new System.Drawing.Point(0, 0);
 			this.tabWorkspace.Name = "tabWorkspace";
@@ -227,16 +231,33 @@
 			this.generateFromEditorToolStripMenuItem.Text = "Generate from editor";
 			this.generateFromEditorToolStripMenuItem.Click += new System.EventHandler(this.generateFromEditorToolStripMenuItem_Click);
 			// 
-			// tabEditor
+			// tabFramesEditor
 			// 
-			this.tabEditor.BackColor = System.Drawing.Color.Black;
-			this.tabEditor.Controls.Add(this.pnlEditor);
-			this.tabEditor.Location = new System.Drawing.Point(4, 4);
-			this.tabEditor.Name = "tabEditor";
-			this.tabEditor.Padding = new System.Windows.Forms.Padding(3);
-			this.tabEditor.Size = new System.Drawing.Size(594, 647);
-			this.tabEditor.TabIndex = 1;
-			this.tabEditor.Text = "Editor";
+			this.tabFramesEditor.BackColor = System.Drawing.Color.Black;
+			this.tabFramesEditor.Controls.Add(this.pnlFramesEditor);
+			this.tabFramesEditor.Location = new System.Drawing.Point(4, 4);
+			this.tabFramesEditor.Name = "tabFramesEditor";
+			this.tabFramesEditor.Padding = new System.Windows.Forms.Padding(3);
+			this.tabFramesEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabFramesEditor.TabIndex = 1;
+			this.tabFramesEditor.Text = "Frames Editor";
+			// 
+			// pnlFramesEditor
+			// 
+			this.pnlFramesEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pnlFramesEditor.Location = new System.Drawing.Point(3, 3);
+			this.pnlFramesEditor.Name = "pnlFramesEditor";
+			this.pnlFramesEditor.Size = new System.Drawing.Size(588, 641);
+			this.pnlFramesEditor.TabIndex = 0;
+			// 
+			// tabAnimationEditor
+			// 
+			this.tabAnimationEditor.Location = new System.Drawing.Point(4, 4);
+			this.tabAnimationEditor.Name = "tabAnimationEditor";
+			this.tabAnimationEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabAnimationEditor.TabIndex = 2;
+			this.tabAnimationEditor.Text = "Animation Editor";
+			this.tabAnimationEditor.UseVisualStyleBackColor = true;
 			// 
 			// pgProperties
 			// 
@@ -379,19 +400,19 @@
             this.toolStripSeparator7,
             this.deleteToolStripMenuItem});
 			this.cmsAssets.Name = "cmsAssets";
-			this.cmsAssets.Size = new System.Drawing.Size(153, 132);
+			this.cmsAssets.Size = new System.Drawing.Size(114, 110);
 			// 
 			// refreshToolStripMenuItem
 			// 
 			this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-			this.refreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.refreshToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.refreshToolStripMenuItem.Text = "Refresh";
 			this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(110, 6);
 			// 
 			// toolStripMenuItem1
 			// 
@@ -400,7 +421,7 @@
             this.animationToolStripMenuItem2,
             this.framesToolStripMenuItem3});
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-			this.toolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(113, 22);
 			this.toolStripMenuItem1.Text = "Add";
 			this.toolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
@@ -408,7 +429,7 @@
 			// 
 			this.folderToolStripMenuItem.Image = global::StarboundAnimator.Properties.Resources.folder;
 			this.folderToolStripMenuItem.Name = "folderToolStripMenuItem";
-			this.folderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.folderToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
 			this.folderToolStripMenuItem.Text = "Folder";
 			this.folderToolStripMenuItem.Click += new System.EventHandler(this.folderToolStripMenuItem_Click);
 			// 
@@ -416,38 +437,38 @@
 			// 
 			this.animationToolStripMenuItem2.Image = global::StarboundAnimator.Properties.Resources.animation;
 			this.animationToolStripMenuItem2.Name = "animationToolStripMenuItem2";
-			this.animationToolStripMenuItem2.Size = new System.Drawing.Size(152, 22);
+			this.animationToolStripMenuItem2.Size = new System.Drawing.Size(130, 22);
 			this.animationToolStripMenuItem2.Text = "Animation";
 			// 
 			// framesToolStripMenuItem3
 			// 
 			this.framesToolStripMenuItem3.Image = global::StarboundAnimator.Properties.Resources.frames;
 			this.framesToolStripMenuItem3.Name = "framesToolStripMenuItem3";
-			this.framesToolStripMenuItem3.Size = new System.Drawing.Size(152, 22);
+			this.framesToolStripMenuItem3.Size = new System.Drawing.Size(130, 22);
 			this.framesToolStripMenuItem3.Text = "Frames";
 			this.framesToolStripMenuItem3.Click += new System.EventHandler(this.framesToolStripMenuItem3_Click);
 			// 
 			// toolStripSeparator8
 			// 
 			this.toolStripSeparator8.Name = "toolStripSeparator8";
-			this.toolStripSeparator8.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator8.Size = new System.Drawing.Size(110, 6);
 			// 
 			// saveToolStripMenuItem1
 			// 
 			this.saveToolStripMenuItem1.Name = "saveToolStripMenuItem1";
-			this.saveToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+			this.saveToolStripMenuItem1.Size = new System.Drawing.Size(113, 22);
 			this.saveToolStripMenuItem1.Text = "Save";
 			this.saveToolStripMenuItem1.Click += new System.EventHandler(this.saveToolStripMenuItem1_Click);
 			// 
 			// toolStripSeparator7
 			// 
 			this.toolStripSeparator7.Name = "toolStripSeparator7";
-			this.toolStripSeparator7.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator7.Size = new System.Drawing.Size(110, 6);
 			// 
 			// deleteToolStripMenuItem
 			// 
 			this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
 			this.deleteToolStripMenuItem.Text = "Delete";
 			this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
 			// 
@@ -502,13 +523,14 @@
 			this.allToolStripMenuItem.Size = new System.Drawing.Size(88, 22);
 			this.allToolStripMenuItem.Text = "All";
 			// 
-			// pnlEditor
+			// tabScriptEditor
 			// 
-			this.pnlEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pnlEditor.Location = new System.Drawing.Point(3, 3);
-			this.pnlEditor.Name = "pnlEditor";
-			this.pnlEditor.Size = new System.Drawing.Size(588, 641);
-			this.pnlEditor.TabIndex = 0;
+			this.tabScriptEditor.Location = new System.Drawing.Point(4, 4);
+			this.tabScriptEditor.Name = "tabScriptEditor";
+			this.tabScriptEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabScriptEditor.TabIndex = 3;
+			this.tabScriptEditor.Text = "Script Editor";
+			this.tabScriptEditor.UseVisualStyleBackColor = true;
 			// 
 			// Form1
 			// 
@@ -531,7 +553,7 @@
 			this.tabSource.ResumeLayout(false);
 			this.tabSource.PerformLayout();
 			this.cmsSource.ResumeLayout(false);
-			this.tabEditor.ResumeLayout(false);
+			this.tabFramesEditor.ResumeLayout(false);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.cmsAssets.ResumeLayout(false);
@@ -559,10 +581,10 @@
 		private System.Windows.Forms.TabControl tabWorkspace;
 		private System.Windows.Forms.TabPage tabSource;
 		private System.Windows.Forms.TextBox tbSource;
-		private System.Windows.Forms.TabPage tabEditor;
+		private System.Windows.Forms.TabPage tabFramesEditor;
 		private System.Windows.Forms.PropertyGrid pgProperties;
 		private System.Windows.Forms.ToolStripMenuItem unpackStarboundAssetsToolStripMenuItem;
-		private EditorPanel pnlEditor;
+		private EditorPanel pnlFramesEditor;
 		private System.Windows.Forms.OpenFileDialog OFD;
 		private System.Windows.Forms.SaveFileDialog SFD;
 		public System.Windows.Forms.ContextMenuStrip cmsEditorFrames;
@@ -591,6 +613,8 @@
 		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem1;
+		private System.Windows.Forms.TabPage tabAnimationEditor;
+		private System.Windows.Forms.TabPage tabScriptEditor;
     }
 }
 

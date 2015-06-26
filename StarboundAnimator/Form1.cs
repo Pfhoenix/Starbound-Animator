@@ -12,17 +12,19 @@ namespace StarboundAnimator
 {
     public partial class Form1 : Form
     {
-		public const int ASSET_IMAGELIST_FOLDER = 0;
-		public const int ASSET_IMAGELIST_FOLDERBAD = 1;
-		public const int ASSET_IMAGELIST_ANIMATION = 2;
-		public const int ASSET_IMAGELIST_ANIMATIONBAD = 3;
-		public const int ASSET_IMAGELIST_FRAMES = 4;
-		public const int ASSET_IMAGELIST_FRAMESBAD = 5;
-		public const int ASSET_IMAGELIST_FRAMEGRID = 6;
-		public const int ASSET_IMAGELIST_FRAMELIST = 7;
-		public const int ASSET_IMAGELIST_FRAMESUNTESTED = 8;
-		public const int ASSET_IMAGELIST_ANIMATIONUNTESTED = 9;
-
+		public enum EAssetImageList
+		{
+			Folder = 0,
+			FolderBad,
+			Animation,
+			AnimationBad,
+			Frames,
+			FramesBad,
+			FrameGrid,
+			FrameList,
+			FramesUntested,
+			AnimationUntested
+		}
 
 		public FramesProperties FramesProperties = new FramesProperties();
 
@@ -76,7 +78,7 @@ namespace StarboundAnimator
 		{
 			if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
 			{
-				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
+				TreeNode tn = new TreeNode(title, (int)EAssetImageList.FolderBad, (int)EAssetImageList.FolderBad);
 				tvAssets.Nodes.Add(tn);
 				return new List<string>();
 			}
@@ -92,7 +94,7 @@ namespace StarboundAnimator
 				}
 				else
 				{
-					TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
+					TreeNode tn = new TreeNode(title, (int)EAssetImageList.FolderBad, (int)EAssetImageList.FolderBad);
 					tvAssets.Nodes.Add(tn);
 					return new List<string>();
 				}
@@ -104,7 +106,7 @@ namespace StarboundAnimator
 		{
 			if ((foundlist == null) || (foundlist.Count == 0))
 			{
-				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDERBAD, ASSET_IMAGELIST_FOLDERBAD);
+				TreeNode tn = new TreeNode(title, (int)EAssetImageList.FolderBad, (int)EAssetImageList.FolderBad);
 				if (root != null) root.Nodes.Add(tn);
 				else tvAssets.Nodes.Add(tn);
 			}
@@ -114,7 +116,7 @@ namespace StarboundAnimator
 
 				foundlist.Sort();
 				List<TreeNode> curnodepath = new List<TreeNode>();
-				TreeNode tn = new TreeNode(title, ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
+				TreeNode tn = new TreeNode(title, (int)EAssetImageList.Folder, (int)EAssetImageList.Folder);
 				if (root != null) root.Nodes.Add(tn);
 				else tvAssets.Nodes.Add(tn);
 				curnodepath.Add(tn);
@@ -129,7 +131,7 @@ namespace StarboundAnimator
 						// node doesn't exist
 						if (curnodepath.Count == j)
 						{
-							tn = new TreeNode(split[j], ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
+							tn = new TreeNode(split[j], (int)EAssetImageList.Folder, (int)EAssetImageList.Folder);
 							TreeNode pn = curnodepath[curnodepath.Count - 1];
 							int n = 0;
 							for (n = pn.Nodes.Count - 1; n >= 0; n--)
@@ -144,7 +146,7 @@ namespace StarboundAnimator
 						else if (curnodepath[j].Text != split[j])
 						{
 							curnodepath.RemoveRange(j, curnodepath.Count - j);
-							tn = new TreeNode(split[j], ASSET_IMAGELIST_FOLDER, ASSET_IMAGELIST_FOLDER);
+							tn = new TreeNode(split[j], (int)EAssetImageList.Folder, (int)EAssetImageList.Folder);
 							curnodepath[curnodepath.Count - 1].Nodes.Add(tn);
 							curnodepath.Add(tn);
 						}
@@ -158,8 +160,8 @@ namespace StarboundAnimator
 
 					// adjust this to set animation or frame image
 					int tni = 0;
-					if (split[split.Length - 1].EndsWith(Animation.FileExtension)) tni = ASSET_IMAGELIST_ANIMATIONUNTESTED;
-					else if (split[split.Length - 1].EndsWith(Frames.FileExtension)) tni = ASSET_IMAGELIST_FRAMESUNTESTED;
+					if (split[split.Length - 1].EndsWith(Animation.FileExtension)) tni = (int)EAssetImageList.AnimationUntested;
+					else if (split[split.Length - 1].EndsWith(Frames.FileExtension)) tni = (int)EAssetImageList.FramesUntested;
 					curnodepath[curnodepath.Count - 1].Nodes.Add(new AssetTreeNode(split[split.Length - 1], tni, tni, null));
 				}
 
@@ -203,7 +205,7 @@ namespace StarboundAnimator
 			tbSource.Text = frame.Source;
 			FramesProperties.InitForFrames(frame);
 			pgProperties.SelectedObject = FramesProperties;
-			pnlEditor.InitForFrame();
+			pnlFramesEditor.InitForFrame();
 
 			framesToolStripMenuItem2.Visible = true;
 			FrameGridChanged(frame.frameGrid != null); 
@@ -221,7 +223,7 @@ namespace StarboundAnimator
 				framesToolStripMenuItem2.Visible = false;
 			}
 
-			pnlEditor.UpdateFrameShowButtons(false);
+			pnlFramesEditor.UpdateFrameShowButtons(false);
 		}
 
 		void SetWorkingAnimation(Animation anim)
@@ -369,10 +371,25 @@ namespace StarboundAnimator
 			return ca.IsReadOnly;
 		}
 
+		void ActivateWorkspaceTabPage(TabPage tp)
+		{
+			foreach (TabPage p in tabWorkspace.TabPages)
+			{
+				if (p == tabSource) continue;
+				if (p == tp) continue;
+				p.Hide();
+			}
+
+			tp.Show();
+			tabWorkspace.SelectedTab = tp;
+			tabWorkspace.Visible = true;
+		}
+
 		private void tvAssets_AfterSelect(object sender, TreeViewEventArgs e)
 		{
 			if (e.Node.Text.EndsWith(Frames.FileExtension))
 			{
+				ActivateWorkspaceTabPage(tabFramesEditor);
 				//UnsetWorkingAnimation();
 				//UnsetWorkingFrames();
 
@@ -391,8 +408,8 @@ namespace StarboundAnimator
 				if (frame != null)
 				{
 					frame.bReadOnly = GetReadOnlyStatus(e.Node);
-					e.Node.ImageIndex = ASSET_IMAGELIST_FRAMES;
-					e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMES;
+					e.Node.ImageIndex = (int)EAssetImageList.Frames;
+					e.Node.SelectedImageIndex = (int)EAssetImageList.Frames;
 
 					if (string.IsNullOrEmpty(frame.image))
 					{
@@ -481,16 +498,18 @@ namespace StarboundAnimator
 				else
 				{
 					tbSource.Text = "";
-					e.Node.ImageIndex = ASSET_IMAGELIST_FRAMESBAD;
-					e.Node.SelectedImageIndex = ASSET_IMAGELIST_FRAMESBAD;
+					e.Node.ImageIndex = (int)EAssetImageList.FramesBad;
+					e.Node.SelectedImageIndex = (int)EAssetImageList.FramesBad;
 				}
 
-				if (tabWorkspace.SelectedTab == tabEditor) tabEditor.Invalidate();
-				else tabWorkspace.SelectedTab = tabEditor;
+				if (tabWorkspace.SelectedTab == tabFramesEditor) tabFramesEditor.Invalidate();
+				else tabWorkspace.SelectedTab = tabFramesEditor;
 				tabWorkspace.Visible = true;
 			}
 			else if (e.Node.Text.EndsWith(Animation.FileExtension))
 			{
+				ActivateWorkspaceTabPage(tabAnimationEditor);
+
 				Animation anim = null;
 				if ((e.Node as AssetTreeNode).Asset != null)
 				{
@@ -499,15 +518,18 @@ namespace StarboundAnimator
 				else
 				{
 					anim = Animation.LoadFromFile(GetFullPathForNode(e.Node));
-					//anim = new Animation(GetPathForNode(e.Node));
 					(e.Node as AssetTreeNode).Asset = anim;
 				}
 
-				if (anim != null) SetWorkingAnimation(anim);
-				else tbSource.Text = "";
+				if (anim != null)
+				{
+					anim.bReadOnly = GetReadOnlyStatus(e.Node);
+					e.Node.ImageIndex = (int)EAssetImageList.Frames;
+					e.Node.SelectedImageIndex = (int)EAssetImageList.Frames;
 
-				tabWorkspace.SelectedTab = tabSource;
-				tabWorkspace.Visible = true;
+					SetWorkingAnimation(anim);
+				}
+				else tbSource.Text = "";
 			}
 			/*else if (e.Node != null)
 			{
@@ -706,7 +728,7 @@ namespace StarboundAnimator
 				}
 			}
 
-			pnlEditor.Invalidate();
+			pnlFramesEditor.Invalidate();
 		}
 
 		private void addGridToolStripMenuItem_Click(object sender, EventArgs e)
@@ -718,8 +740,8 @@ namespace StarboundAnimator
 				FramesProperties.InitForFrames(Globals.WorkingFrames);
 				pgProperties.SelectedObject = null;
 				pgProperties.SelectedObject = FramesProperties;
-				pnlEditor.UpdateFrameShowButtons(true);
-				pnlEditor.Invalidate();
+				pnlFramesEditor.UpdateFrameShowButtons(true);
+				pnlFramesEditor.Invalidate();
 			}
 		}
 
@@ -764,8 +786,8 @@ namespace StarboundAnimator
 					FramesProperties.InitForFrames(Globals.WorkingFrames);
 					pgProperties.SelectedObject = null;
 					pgProperties.SelectedObject = FramesProperties;
-					pnlEditor.UpdateFrameShowButtons(true);
-					pnlEditor.Invalidate();
+					pnlFramesEditor.UpdateFrameShowButtons(true);
+					pnlFramesEditor.Invalidate();
 				}
 			}
 		}
@@ -781,8 +803,8 @@ namespace StarboundAnimator
 				FramesProperties.InitForFrames(Globals.WorkingFrames);
 				pgProperties.SelectedObject = null;
 				pgProperties.SelectedObject = FramesProperties;
-				pnlEditor.UpdateFrameShowButtons(true);
-				pnlEditor.Invalidate();
+				pnlFramesEditor.UpdateFrameShowButtons(true);
+				pnlFramesEditor.Invalidate();
 			}
 		}
 
@@ -844,8 +866,8 @@ namespace StarboundAnimator
 			string path = GetFullPathForNode(tvAssets.SelectedNode);
 			string dirname = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
 			TreeNode tn = new TreeNode(dirname);
-			tn.ImageIndex = ASSET_IMAGELIST_FOLDER;
-			tn.SelectedImageIndex = ASSET_IMAGELIST_FOLDER;
+			tn.ImageIndex = (int)EAssetImageList.Folder;
+			tn.SelectedImageIndex = (int)EAssetImageList.Folder;
 			Directory.CreateDirectory(Path.Combine(path, dirname));
 			tvAssets.SelectedNode.Nodes.Add(tn);
 		}
@@ -961,7 +983,7 @@ namespace StarboundAnimator
 			Frames f = new Frames();
 			f.Filename = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + Frames.FileExtension;
 			f.FilePath = GetFullPathForNode(tvAssets.SelectedNode);
-			AssetTreeNode atn = new AssetTreeNode(f.Filename, ASSET_IMAGELIST_FRAMES, ASSET_IMAGELIST_FRAMES, f);
+			AssetTreeNode atn = new AssetTreeNode(f.Filename, (int)EAssetImageList.Frames, (int)EAssetImageList.Frames, f);
 			tvAssets.SelectedNode.Nodes.Add(atn);
 			CachedAsset ca = GetCachedAssetForNode(tvAssets.SelectedNode);
 			ca.AddAsset(GetRelativePathForNode(atn));

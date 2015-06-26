@@ -1,5 +1,13 @@
 ﻿TODO :
 
+EditorPanel needs to be abstracted to then be the parent of :
+- FramesEditorPanel
+- AnimationEditorPanel
+
+Option to create a frames file from an image file
+- bring up a dialog box for setting grid properties
+- 
+
 removing an asset path needs to scan for loaded assets and check whether or not to unload them
  - this is going to rely on a contentmanager, so that needs to be done first
 
