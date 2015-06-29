@@ -43,6 +43,8 @@
 			this.tabFramesEditor = new System.Windows.Forms.TabPage();
 			this.pnlFramesEditor = new StarboundAnimator.EditorPanel();
 			this.tabAnimationEditor = new System.Windows.Forms.TabPage();
+			this.tabScriptEditor = new System.Windows.Forms.TabPage();
+			this.luaScriptBox1 = new StarboundAnimator.LuaScriptBox();
 			this.pgProperties = new System.Windows.Forms.PropertyGrid();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,10 +81,11 @@
 			this.removeFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
 			this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.tabScriptEditor = new System.Windows.Forms.TabPage();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
 			this.splitContainer2.Panel1.SuspendLayout();
 			this.splitContainer2.Panel2.SuspendLayout();
 			this.splitContainer2.SuspendLayout();
@@ -90,6 +93,7 @@
 			this.tabSource.SuspendLayout();
 			this.cmsSource.SuspendLayout();
 			this.tabFramesEditor.SuspendLayout();
+			this.tabScriptEditor.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.cmsAssets.SuspendLayout();
 			this.cmsEditorFrames.SuspendLayout();
@@ -238,7 +242,7 @@
 			this.tabFramesEditor.Location = new System.Drawing.Point(4, 4);
 			this.tabFramesEditor.Name = "tabFramesEditor";
 			this.tabFramesEditor.Padding = new System.Windows.Forms.Padding(3);
-			this.tabFramesEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabFramesEditor.Size = new System.Drawing.Size(590, 643);
 			this.tabFramesEditor.TabIndex = 1;
 			this.tabFramesEditor.Text = "Frames Editor";
 			// 
@@ -247,17 +251,44 @@
 			this.pnlFramesEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pnlFramesEditor.Location = new System.Drawing.Point(3, 3);
 			this.pnlFramesEditor.Name = "pnlFramesEditor";
-			this.pnlFramesEditor.Size = new System.Drawing.Size(588, 641);
+			this.pnlFramesEditor.Size = new System.Drawing.Size(584, 637);
 			this.pnlFramesEditor.TabIndex = 0;
 			// 
 			// tabAnimationEditor
 			// 
 			this.tabAnimationEditor.Location = new System.Drawing.Point(4, 4);
 			this.tabAnimationEditor.Name = "tabAnimationEditor";
-			this.tabAnimationEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabAnimationEditor.Size = new System.Drawing.Size(590, 643);
 			this.tabAnimationEditor.TabIndex = 2;
 			this.tabAnimationEditor.Text = "Animation Editor";
 			this.tabAnimationEditor.UseVisualStyleBackColor = true;
+			// 
+			// tabScriptEditor
+			// 
+			this.tabScriptEditor.Controls.Add(this.luaScriptBox1);
+			this.tabScriptEditor.Location = new System.Drawing.Point(4, 4);
+			this.tabScriptEditor.Name = "tabScriptEditor";
+			this.tabScriptEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabScriptEditor.TabIndex = 3;
+			this.tabScriptEditor.Text = "Script Editor";
+			this.tabScriptEditor.UseVisualStyleBackColor = true;
+			// 
+			// luaScriptBox1
+			// 
+			this.luaScriptBox1.AcceptsTab = true;
+			this.luaScriptBox1.BackColor = System.Drawing.Color.Black;
+			this.luaScriptBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.luaScriptBox1.DetectUrls = false;
+			this.luaScriptBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.luaScriptBox1.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.luaScriptBox1.ForeColor = System.Drawing.Color.LightGray;
+			this.luaScriptBox1.Location = new System.Drawing.Point(0, 0);
+			this.luaScriptBox1.Margin = new System.Windows.Forms.Padding(0);
+			this.luaScriptBox1.Name = "luaScriptBox1";
+			this.luaScriptBox1.Size = new System.Drawing.Size(594, 647);
+			this.luaScriptBox1.TabIndex = 0;
+			this.luaScriptBox1.Text = "";
+			this.luaScriptBox1.WordWrap = false;
 			// 
 			// pgProperties
 			// 
@@ -523,15 +554,6 @@
 			this.allToolStripMenuItem.Size = new System.Drawing.Size(88, 22);
 			this.allToolStripMenuItem.Text = "All";
 			// 
-			// tabScriptEditor
-			// 
-			this.tabScriptEditor.Location = new System.Drawing.Point(4, 4);
-			this.tabScriptEditor.Name = "tabScriptEditor";
-			this.tabScriptEditor.Size = new System.Drawing.Size(594, 647);
-			this.tabScriptEditor.TabIndex = 3;
-			this.tabScriptEditor.Text = "Script Editor";
-			this.tabScriptEditor.UseVisualStyleBackColor = true;
-			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -545,15 +567,18 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
 			this.splitContainer2.Panel1.ResumeLayout(false);
 			this.splitContainer2.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
 			this.splitContainer2.ResumeLayout(false);
 			this.tabWorkspace.ResumeLayout(false);
 			this.tabSource.ResumeLayout(false);
 			this.tabSource.PerformLayout();
 			this.cmsSource.ResumeLayout(false);
 			this.tabFramesEditor.ResumeLayout(false);
+			this.tabScriptEditor.ResumeLayout(false);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.cmsAssets.ResumeLayout(false);
@@ -615,6 +640,7 @@
 		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem1;
 		private System.Windows.Forms.TabPage tabAnimationEditor;
 		private System.Windows.Forms.TabPage tabScriptEditor;
+		private LuaScriptBox luaScriptBox1;
     }
 }
 

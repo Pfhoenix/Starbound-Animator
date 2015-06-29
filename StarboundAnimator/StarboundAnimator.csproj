@@ -110,6 +110,12 @@
     <Compile Include="FramesProperties.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Lua.cs" />
+    <Compile Include="LuaScriptBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LuaScriptBox.Designer.cs">
+      <DependentUpon>LuaScriptBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProcessFoundFilesForm.cs">
       <SubType>Form</SubType>
     </Compile>

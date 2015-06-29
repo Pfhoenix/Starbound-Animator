@@ -1,167 +1,141 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace StarboundAnimator
 {
-	public enum TextSymbolType { Empty, Symbol, Keyword, Variable, Function, Table }
+	public enum SymbolType { None = 0, Symbol, CommentSingle, CommentBlockStart, CommentBlockEnd, Keyword, LiteralNumber, LiteralString, Variable, Function, Table }
 
-	public class TextSymbol
+	public class LuaSymbol
 	{
-		public int Position;
 		public string Text;
-		public TextSymbolType Type;
-		public TextLine Line;
+		public SymbolType Type;
 
-		public virtual bool HasValidContext()
+		public LuaSymbol(string text, SymbolType type)
 		{
-			return true;
-		}
-
-		public virtual void Clear()
-		{
-			Line = null;
+			Text = text;
+			Type = type;
 		}
 	}
 
-	public class LuaFunction : TextSymbol
+	public class LuaFunction : LuaSymbol
 	{
 		public List<string> Parameters = new List<string>();
 
-		public LuaFunction()
+		public LuaFunction(string text) : base(text, SymbolType.Function)
 		{
-			Type = TextSymbolType.Function;
 		}
 
-
+		/*public override void ValidateContext()
+		{
+		}*/
 	}
 
-	public class LuaTable : TextSymbol
+	public class LuaTable : LuaSymbol
 	{
-		public List<TextSymbol> Variables = new List<TextSymbol>();
-		public List<TextSymbol> Functions = new List<TextSymbol>();
+		public List<LuaSymbol> Variables = new List<LuaSymbol>();
+		public List<LuaFunction> Functions = new List<LuaFunction>();
 
-		public LuaTable()
+		public LuaTable(string text) : base(text, SymbolType.Table)
 		{
-			Type = TextSymbolType.Table;
-		}
-	}
-
-	public class TextLine
-	{
-		public int LineNumber;
-		public List<TextSymbol> Symbols = new List<TextSymbol>();
-
-		public TextSymbol GetSymbolAtPosition(int p)
-		{
-			foreach (TextSymbol ts in Symbols)
-			{
-				if (p < ts.Text.Length) return ts;
-				p -= ts.Text.Length;
-			}
-
-			return null;
-		}
-
-		public void ReplaceSymbol(TextSymbol old, List<TextSymbol> repl)
-		{
-			int i = Symbols.IndexOf(old);
-			if (i < 0) return;
-			Symbols.RemoveAt(i);
-			int pos = old.Position;
-			old.Clear();
-			foreach (TextSymbol ts in repl)
-			{
-				ts.Line = this;
-				ts.Position = pos;
-				pos += ts.Text.Length;
-			}
-			Symbols.InsertRange(i, repl);
-			for (int j = i + repl.Count; j < Symbols.Count; j++)
-			{
-				Symbols[j].Position = pos;
-				pos += Symbols[j].Text.Length;
-			}
 		}
 	}
 
 	public class LuaScript
 	{
-		public List<TextLine> Lines = new List<TextLine>();
-
-		public TextLine GetPrevLine(TextLine tl)
-		{
-			int i = Lines.IndexOf(tl);
-			if (i <= 0) return null;
-			else return Lines[i - 1];
-		}
-
-		public TextLine GetNextLine(TextLine tl)
-		{
-			int i = Lines.IndexOf(tl);
-			if (i < 0) return null;
-			if (i == (Lines.Count - 1)) return null;
-			else return Lines[i + 1];
-		}
+		public List<LuaSymbol> Symbols = new List<LuaSymbol>();
 	}
 
 	public class Lua
 	{
-
-		public static List<string> Keywords = new List<string>()
+		static List<LuaSymbol> Keywords = new List<LuaSymbol>()
 		{
-			"and",
-			"break",
-			"do",
-			"else",
-			"elseif",
-			"end",
-			"false",
-			"for",
-			"function",
-			"if",
-			"in",
-			"local",
-			"nil",
-			"not",
-			"or",
-			"repeat",
-			"return",
-			"then",
-			"true",
-			"until",
-			"while"
+			new LuaSymbol("and", SymbolType.Keyword),
+			new LuaSymbol("break", SymbolType.Keyword),
+			new LuaSymbol("do", SymbolType.Keyword),
+			new LuaSymbol("else", SymbolType.Keyword),
+			new LuaSymbol("elseif", SymbolType.Keyword),
+			new LuaSymbol("end", SymbolType.Keyword),
+			new LuaSymbol("false", SymbolType.Keyword),
+			new LuaSymbol("for", SymbolType.Keyword),
+			new LuaSymbol("function", SymbolType.Keyword),
+			new LuaSymbol("if", SymbolType.Keyword),
+			new LuaSymbol("in", SymbolType.Keyword),
+			new LuaSymbol("local", SymbolType.Keyword),
+			new LuaSymbol("nil", SymbolType.Keyword),
+			new LuaSymbol("not", SymbolType.Keyword),
+			new LuaSymbol("or", SymbolType.Keyword),
+			new LuaSymbol("repeat", SymbolType.Keyword),
+			new LuaSymbol("return", SymbolType.Keyword),
+			new LuaSymbol("then", SymbolType.Keyword),
+			new LuaSymbol("true", SymbolType.Keyword),
+			new LuaSymbol("until", SymbolType.Keyword),
+			new LuaSymbol("while", SymbolType.Keyword)
 		};
 
-		public static List<string> Symbols = new List<string>()
+		static List<LuaSymbol> Symbols = new List<LuaSymbol>()
 		{
-			"+",
-			"-",
-			"*",
-			"/",
-			"%",
-			"^",
-			"#",
-			"==",
-			"<=",
-			">=",
-			"<",
-			">",
-			"=",
-			"(",
-			")",
-			"{",
-			"}",
-			"[",
-			"]",
-			";",
-			":",
-			",",
-			".",
-			"..",
-			"..."
+			new LuaSymbol("+", SymbolType.Symbol),
+			new LuaSymbol("-", SymbolType.Symbol),
+			new LuaSymbol("*", SymbolType.Symbol),
+			new LuaSymbol("/", SymbolType.Symbol),
+			new LuaSymbol("%", SymbolType.Symbol),
+			new LuaSymbol("^", SymbolType.Symbol),
+			new LuaSymbol("#", SymbolType.Symbol),
+			new LuaSymbol("==", SymbolType.Symbol),
+			new LuaSymbol("<=", SymbolType.Symbol),
+			new LuaSymbol(">=", SymbolType.Symbol),
+			new LuaSymbol("<", SymbolType.Symbol),
+			new LuaSymbol(">", SymbolType.Symbol),
+			new LuaSymbol("=", SymbolType.Symbol),
+			new LuaSymbol("(", SymbolType.Symbol),
+			new LuaSymbol(")", SymbolType.Symbol),
+			new LuaSymbol("{", SymbolType.Symbol),
+			new LuaSymbol("}", SymbolType.Symbol),
+			new LuaSymbol("[", SymbolType.Symbol),
+			new LuaSymbol("]", SymbolType.Symbol),
+			new LuaSymbol(";", SymbolType.Symbol),
+			new LuaSymbol(":", SymbolType.Symbol),
+			new LuaSymbol(",", SymbolType.Symbol),
+			new LuaSymbol(".", SymbolType.Symbol),
+			new LuaSymbol("..", SymbolType.Symbol),
+			new LuaSymbol("...", SymbolType.Symbol),
+			new LuaSymbol("--", SymbolType.CommentSingle)
 		};
 
+		static LuaSymbol GetLuaKeywordFor(string text)
+		{
+			return Keywords.Find(kw => kw.Text == text);
+		}
+
+		static LuaSymbol GetLuaSymbolFor(string text)
+		{
+			return Symbols.Find(s => s.Text == text);
+		}
+
+		public static LuaSymbol GetSymbolForText(string text, SymbolType type)
+		{
+			switch (type)
+			{
+				case SymbolType.Symbol:
+					return GetLuaSymbolFor(text);
+
+				case SymbolType.Keyword:
+					return GetLuaKeywordFor(text);
+
+				case SymbolType.None:
+					LuaSymbol ls = GetLuaSymbolFor(text);
+					if (ls != null) return ls;
+					ls = GetLuaKeywordFor(text);
+					if (ls != null) return ls;
+					break;
+			}
+
+			return null;
+		}
+
+		//static List<LuaSymbol> Globals = new List<LuaSymbol>();
 		public static List<string> Globals = new List<string>()
 		{
 			"string",
@@ -173,5 +147,24 @@ namespace StarboundAnimator
 			"tech",
 			"mcontroller"
 		};
+
+		public LuaScript ParseFile(string filepath)
+		{
+			if (!File.Exists(filepath)) return null;
+			string[] lines = File.ReadAllLines(filepath);
+			return ParseSourceLines(lines);
+		}
+
+		public LuaScript ParseText(string source)
+		{
+			string ns = source.Replace("\r", "");
+			string[] lines = source.Split(new char[] { '\n' });
+			return ParseSourceLines(lines);
+		}
+
+		public LuaScript ParseSourceLines(string[] sourcelines)
+		{
+			return null;
+		}
 	}
 }

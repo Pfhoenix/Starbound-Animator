@@ -1,5 +1,12 @@
 ﻿TODO :
 
+Lua parsing
+- need to stub loading globals
+- need a way to know what individual characters are classified as
+  - whitespace (space)
+  - operators
+  - letters and numbers
+
 EditorPanel needs to be abstracted to then be the parent of :
 - FramesEditorPanel
 - AnimationEditorPanel
