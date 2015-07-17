@@ -88,7 +88,7 @@ namespace StarboundAnimator
 						for (int i = 0; i < files.Length; i++)
 						{
 							fileext = Path.GetExtension(files[i]);
-							if ((string.Compare(fileext, Animation.FileExtension, true) == 0) || (string.Compare(fileext, Frames.FileExtension, true) == 0))
+							if ((string.Compare(fileext, Animation.FileExtension, true) == 0) || (string.Compare(fileext, Frames.FileExtension, true) == 0) || (string.Compare(fileext, LuaScriptAsset.FileExtension, true) == 0))
 							{
 								fCount++;
 								UpdateControlText(lblCount, fCount.ToString(), false);

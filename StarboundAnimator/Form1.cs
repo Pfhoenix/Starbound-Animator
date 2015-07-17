@@ -23,7 +23,10 @@ namespace StarboundAnimator
 			FrameGrid,
 			FrameList,
 			FramesUntested,
-			AnimationUntested
+			AnimationUntested,
+			LuaScript,
+			LuaScriptBad,
+			LuaScriptUntested
 		}
 
 		public FramesProperties FramesProperties = new FramesProperties();
@@ -45,6 +48,12 @@ namespace StarboundAnimator
 			{
 				AddAssetPath(ca.Title, ca.Assets, null);
 			}
+
+			Lua.SetTestGlobals();
+			luaScriptBox1.Init();
+
+			// add syntax highlighting colors to Globals.AppSettings?
+
 			// load last project here
 
 			//if (Globals.AppSettings.PathToLastProject == "") tabPages.SelectedTab = tabAssets;
@@ -162,6 +171,7 @@ namespace StarboundAnimator
 					int tni = 0;
 					if (split[split.Length - 1].EndsWith(Animation.FileExtension)) tni = (int)EAssetImageList.AnimationUntested;
 					else if (split[split.Length - 1].EndsWith(Frames.FileExtension)) tni = (int)EAssetImageList.FramesUntested;
+					else if (split[split.Length - 1].EndsWith(LuaScriptAsset.FileExtension)) tni = (int)EAssetImageList.LuaScriptUntested;
 					curnodepath[curnodepath.Count - 1].Nodes.Add(new AssetTreeNode(split[split.Length - 1], tni, tni, null));
 				}
 
@@ -200,6 +210,7 @@ namespace StarboundAnimator
 		{
 			if (Globals.WorkingFrames != null) UnsetWorkingFrames();
 			if (Globals.WorkingAnimation != null) UnsetWorkingAnimation();
+			if (Globals.WorkingScript != null) UnsetWorkingScript();
 
 			Globals.WorkingFrames = frame;
 			tbSource.Text = frame.Source;
@@ -241,6 +252,29 @@ namespace StarboundAnimator
 			{
 				Globals.WorkingAnimation = null;
 				tbSource.Text = "";
+			}
+		}
+
+		void SetWorkingScript(LuaScriptAsset script)
+		{
+			if (Globals.WorkingFrames != null) UnsetWorkingFrames();
+			if (Globals.WorkingAnimation != null) UnsetWorkingAnimation();
+			if (Globals.WorkingScript != null) UnsetWorkingScript();
+
+			Globals.WorkingScript = script;
+			luaScriptBox1.ReadOnly = script.bReadOnly;
+			luaScriptBox1.SetScript(script.Script);
+
+			scriptToolStripMenuItem.Visible = true;
+		}
+
+		void UnsetWorkingScript()
+		{
+			if (Globals.WorkingScript != null)
+			{
+				Globals.WorkingScript = null;
+				luaScriptBox1.Clear();
+				scriptToolStripMenuItem.Visible = false;
 			}
 		}
 
@@ -326,6 +360,9 @@ namespace StarboundAnimator
 				tvAssets.Nodes.Remove(sn);
 				CachedAsset ca = Globals.AppSettings.CachedAssets.Find(tca => title == tca.Title);
 				if (ca != null) ca.Assets = AddAssetPath(title, path, null);
+			}
+			else if (tvAssets.SelectedNode.Text.EndsWith(LuaScriptAsset.FileExtension))
+			{
 			}
 			else if (tvAssets.SelectedNode.Text.EndsWith(Animation.FileExtension))
 			{
@@ -530,6 +567,38 @@ namespace StarboundAnimator
 					SetWorkingAnimation(anim);
 				}
 				else tbSource.Text = "";
+			}
+			else if (e.Node.Text.EndsWith(LuaScriptAsset.FileExtension))
+			{
+				ActivateWorkspaceTabPage(tabScriptEditor);
+
+				LuaScriptAsset script = null;
+				if ((e.Node as AssetTreeNode).Asset != null)
+				{
+					script = (e.Node as AssetTreeNode).Asset as LuaScriptAsset;
+				}
+				else
+				{
+					script = LuaScriptAsset.LoadFromFile(GetFullPathForNode(e.Node));
+					(e.Node as AssetTreeNode).Asset = script;
+				}
+
+				if (script != null)
+				{
+					script.bReadOnly = GetReadOnlyStatus(e.Node);
+					SetWorkingScript(script);
+					e.Node.ImageIndex = (int)EAssetImageList.LuaScript;
+					e.Node.SelectedImageIndex = (int)EAssetImageList.LuaScript;
+				}
+				else
+				{
+					e.Node.ImageIndex = (int)EAssetImageList.LuaScriptBad;
+					e.Node.SelectedImageIndex = (int)EAssetImageList.LuaScriptBad;
+				}
+
+				if (tabWorkspace.SelectedTab == tabScriptEditor) tabScriptEditor.Invalidate();
+				else tabWorkspace.SelectedTab = tabScriptEditor;
+				tabWorkspace.Visible = true;
 			}
 			/*else if (e.Node != null)
 			{
@@ -913,7 +982,8 @@ namespace StarboundAnimator
 			if (atn != null)
 			{
 				if (((atn.Asset is Frames) && !e.Label.EndsWith(Frames.FileExtension)) ||
-					((atn.Asset is Animation) && !e.Label.EndsWith(Animation.FileExtension)))
+					((atn.Asset is Animation) && !e.Label.EndsWith(Animation.FileExtension)) ||
+					((atn.Asset is LuaScriptAsset) && !e.Label.EndsWith(LuaScriptAsset.FileExtension)))
 				{
 					MessageBox.Show("The file extension must the file type!", "File extension error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					e.CancelEdit = true;
@@ -987,6 +1057,12 @@ namespace StarboundAnimator
 			tvAssets.SelectedNode.Nodes.Add(atn);
 			CachedAsset ca = GetCachedAssetForNode(tvAssets.SelectedNode);
 			ca.AddAsset(GetRelativePathForNode(atn));
+		}
+
+		private void luaScriptDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			LuaGlobalDefinitionEditor lgde = new LuaGlobalDefinitionEditor();
+			lgde.ShowDialog();
 		}
     }
 }

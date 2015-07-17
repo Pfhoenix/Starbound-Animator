@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace StarboundAnimator
 {
-	public abstract class Asset
+	public class Asset
 	{
 		[NonSerialized]
 		public const string FileExtension = ".";
@@ -18,7 +18,33 @@ namespace StarboundAnimator
 		[NonSerialized]
 		public bool bReadOnly = false;
 
-		public static T LoadFromFile<T>(string path) where T : Asset
+		public static Asset LoadFromFile(string path)
+		{
+			if (!File.Exists(path)) return null;
+
+			Asset a = new Asset();
+			a.Filename = Path.GetFileName(path);
+			a.FilePath = Path.GetDirectoryName(path);
+			a.Source = File.ReadAllText(path);
+			//int i = a.Source.IndexOf('\n');
+			//if ((i == 0) || (a.Source[i - 1] != '\r')) a.Source = a.Source.Replace("\n", Environment.NewLine);
+
+			return a;
+		}
+
+		public virtual void SaveToFile()
+		{
+			try
+			{
+				File.WriteAllText(Path.Combine(FilePath, Filename), Source);
+			}
+			catch { }
+		}
+	}
+
+	public class JsonAsset : Asset
+	{
+		public static T LoadFromFile<T>(string path) where T : JsonAsset
 		{
 			if (!File.Exists(path)) return null;
 
@@ -37,7 +63,7 @@ namespace StarboundAnimator
 			return a;
 		}
 
-		public void SaveToFile()
+		public override void SaveToFile()
 		{
 			try
 			{
@@ -49,6 +75,5 @@ namespace StarboundAnimator
 			}
 			catch { }
 		}
-
 	}
 }

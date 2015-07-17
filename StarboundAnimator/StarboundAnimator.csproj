@@ -88,6 +88,12 @@
     <Compile Include="ConvertGridToListForm.Designer.cs">
       <DependentUpon>ConvertGridToListForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DefinitionLogParserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DefinitionLogParserForm.Designer.cs">
+      <DependentUpon>DefinitionLogParserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -109,7 +115,19 @@
     </Compile>
     <Compile Include="FramesProperties.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="GlobalsDefinitionEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GlobalsDefinitionEditorForm.Designer.cs">
+      <DependentUpon>GlobalsDefinitionEditorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Lua.cs" />
+    <Compile Include="LuaGlobalDefinitionEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LuaGlobalDefinitionEditor.Designer.cs">
+      <DependentUpon>LuaGlobalDefinitionEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="LuaScriptBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -154,11 +172,20 @@
     <EmbeddedResource Include="ConvertGridToListForm.resx">
       <DependentUpon>ConvertGridToListForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="DefinitionLogParserForm.resx">
+      <DependentUpon>DefinitionLogParserForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrameSelectForm.resx">
       <DependentUpon>FrameSelectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GlobalsDefinitionEditorForm.resx">
+      <DependentUpon>GlobalsDefinitionEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LuaGlobalDefinitionEditor.resx">
+      <DependentUpon>LuaGlobalDefinitionEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ProcessFoundFilesForm.resx">
       <DependentUpon>ProcessFoundFilesForm.cs</DependentUpon>

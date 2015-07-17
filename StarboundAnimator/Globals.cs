@@ -22,6 +22,7 @@ namespace StarboundAnimator
 		public static Settings AppSettings;
 		public static Frames WorkingFrames;
 		public static Animation WorkingAnimation;
+		public static LuaScriptAsset WorkingScript;
 
 		public const int MajVer = 0;
 		public const int MinVer = 3;

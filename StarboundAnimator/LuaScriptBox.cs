@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Data;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace StarboundAnimator
 {
@@ -45,6 +47,11 @@ namespace StarboundAnimator
 			}
 		}
 
+		public TextSymbol(LuaSymbol ls)
+		{
+			Symbol = ls;
+		}
+
 		//public bool InvalidContext;
 
 		/*public virtual void ValidateContext()
@@ -62,6 +69,23 @@ namespace StarboundAnimator
 	{
 		public int LineNumber;
 		public List<TextSymbol> Symbols = new List<TextSymbol>();
+
+		public TextLine(int ln)
+		{
+			LineNumber = ln;
+		}
+
+		public void AddSymbol(TextSymbol ts)
+		{
+			ts.Line = this;
+			Symbols.Add(ts);
+		}
+
+		public void RemoveSymbol(TextSymbol ts)
+		{
+			Symbols.Remove(ts);
+			ts.Line = null;
+		}
 
 		public TextSymbol GetSymbolAtPosition(int p)
 		{
@@ -109,23 +133,124 @@ namespace StarboundAnimator
 		}
 	}
 
+	public class SyntaxHighlightColors
+	{
+		public string TextColorString;
+		public string SymbolColorString;
+		public string CommentColorString;
+		public string KeywordColorString;
+		public string NumberColorString;
+		public string StringColorString;
+		public string GlobalColorString;
+	
+		[XmlIgnore]
+		public Color Text;
+		[XmlIgnore]
+		public Color Symbol;
+		[XmlIgnore]
+		public Color Comment;
+		[XmlIgnore]
+		public Color Keyword;
+		[XmlIgnore]
+		public Color Number;
+		[XmlIgnore]
+		public Color String;
+		[XmlIgnore]
+		public Color Global;
+
+		public void PostLoad()
+		{
+			Text = ColorTranslator.FromHtml(TextColorString);
+			Symbol = ColorTranslator.FromHtml(SymbolColorString);
+			Comment = ColorTranslator.FromHtml(CommentColorString);
+			Keyword = ColorTranslator.FromHtml(KeywordColorString);
+			Number = ColorTranslator.FromHtml(NumberColorString);
+			String = ColorTranslator.FromHtml(StringColorString);
+			Global = ColorTranslator.FromHtml(GlobalColorString);
+		}
+
+		public void PreSave()
+		{
+			TextColorString = ColorTranslator.ToHtml(Text);
+			SymbolColorString = ColorTranslator.ToHtml(Symbol);
+			CommentColorString = ColorTranslator.ToHtml(Comment);
+			KeywordColorString = ColorTranslator.ToHtml(Keyword);
+			NumberColorString = ColorTranslator.ToHtml(Number);
+			StringColorString = ColorTranslator.ToHtml(String);
+			GlobalColorString = ColorTranslator.ToHtml(Global);
+		}
+
+		public static SyntaxHighlightColors GetDefault()
+		{
+			SyntaxHighlightColors shc = new SyntaxHighlightColors();
+			shc.Text = Color.LightGray;
+			shc.Symbol = Color.Red;
+			shc.Comment = Color.DarkGreen;
+			shc.Keyword = Color.Lime;
+			shc.Number = Color.Yellow;
+			shc.String = Color.Cyan;
+			shc.Global = Color.Teal;
+
+			return shc;
+		}
+
+		public static SyntaxHighlightColors Load()
+		{
+			try
+			{
+				XmlSerializer xml = new XmlSerializer(typeof(SyntaxHighlightColors));
+				SyntaxHighlightColors shc = xml.Deserialize(File.OpenRead(Path.Combine(Globals.AppPath, "luasyntax.colors"))) as SyntaxHighlightColors;
+				if (shc != null) shc.PostLoad();
+				return shc;
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Error : " + e.Message, "Syntax highlighting loading error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return null;
+			}
+		}
+
+		public void Save()
+		{
+			try
+			{
+				XmlSerializer xml = new XmlSerializer(typeof(SyntaxHighlightColors));
+				FileStream fs = File.OpenWrite(Path.Combine(Globals.AppPath, "luasyntax.colors"));
+				PreSave();
+				xml.Serialize(fs, this);
+				fs.Close();
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Error : " + e.Message, "Syntax highlighting saving error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+	}
+
 	public partial class LuaScriptBox : RichTextBox
 	{
+		public SyntaxHighlightColors SHC;
+		LuaScript CurrentScript;
 		public static int CharWidth;
 		public static int TabSize;
 		public static string TabSpaces;
 		public List<Color> TextColors = new List<Color>();
-		public List<Color> TextBackgrounds = new List<Color>();
+		//public List<Color> TextBackgrounds = new List<Color>();
 
 		public List<TextLine> TextLines = new List<TextLine>();
 
-		public LuaScriptBox()
+		public void Init()
 		{
-			InitializeComponent();
 			Size s = TextRenderer.MeasureText("X", Font);
 			CharWidth = s.Width;
 			SetTabSpaces(4);
-			ResetColorsToDefault();
+			SHC = SyntaxHighlightColors.Load();
+			if (SHC == null)
+			{
+				SHC = SyntaxHighlightColors.GetDefault();
+				SHC.Save();
+			}
+			UpdateColors();
 		}
 
 		public void SetTabSpaces(int tabsize)
@@ -136,35 +261,35 @@ namespace StarboundAnimator
 				TabSpaces += " ";
 		}
 
-		public void ResetColorsToDefault()
+		public void UpdateColors()
 		{
 			TextColors.Clear();
 			// SymbolType.None
-			TextColors.Add(Color.LightGray);
+			TextColors.Add(SHC.Text);
 			// SymbolType.Symbol
-			TextColors.Add(Color.Red);
+			TextColors.Add(SHC.Symbol);
 			// SymbolType.CommentSingle
-			TextColors.Add(Color.DarkGreen);
+			TextColors.Add(SHC.Comment);
 			// SymbolType.CommentBlockStart
-			TextColors.Add(Color.DarkGreen);
-			// SymbolType.CommentBlockEnd
-			TextColors.Add(Color.DarkGreen);
+			TextColors.Add(SHC.Comment);
+			// SymbolType.CommentText
+			TextColors.Add(SHC.Comment);
+			// SymbolType.BlockEnd
+			TextColors.Add(Color.Black);
 			// SymbolType.Keyword
-			TextColors.Add(Color.Lime);
+			TextColors.Add(SHC.Keyword);
 			// SymbolType.LiteralNumber
-			TextColors.Add(Color.Yellow);
+			TextColors.Add(SHC.Number);
 			// SymbolType.LiteralString
-			TextColors.Add(Color.Cyan);
+			TextColors.Add(SHC.String);
+			// SymbolType.LiteralStringText
+			TextColors.Add(SHC.String);
 			// SymbolType.Variable
-			TextColors.Add(Color.LightGray);
+			TextColors.Add(SHC.Text);
 			// SymbolType.Function
-			TextColors.Add(Color.LightGray);
+			TextColors.Add(SHC.Text);
 			// SymbolType.Table
-			TextColors.Add(Color.LightGray);
-
-			TextBackgrounds.Clear();
-			for (int i = 0; i < TextColors.Count; i++)
-				TextBackgrounds.Add(Color.Black);
+			TextColors.Add(SHC.Text);
 		}
 
 		public TextLine GetPrevLine(TextLine tl)
@@ -186,6 +311,40 @@ namespace StarboundAnimator
 		{
 			if ((line < 0) || (line >= TextLines.Count)) return null;
 			else return TextLines[line].GetSymbolAtPosition(pos);
+		}
+
+		public void AppendText(string text, Color fore)//, Color back)
+		{
+			SelectionStart = TextLength;
+			SelectionLength = 0;
+
+			SelectionColor = fore;
+			AppendText(text);
+			SelectionColor = ForeColor;
+		}
+
+		public void SetScript(LuaScript script)
+		{
+			CurrentScript = null;
+			Clear();
+			TextLines.Clear();
+			CurrentScript = script;
+
+			for (int i = 0; i < script.Symbols.Count; i++)
+			{
+				List<LuaSymbol> symline = script.Symbols[i];
+				TextLine tline = new TextLine(i);
+
+				for (int j = 0; j < symline.Count; j++)
+				{
+					TextSymbol ts = new TextSymbol(symline[j]);
+					tline.AddSymbol(ts);
+					AppendText(ts.Text, TextColors[(int)ts.Type]);
+				}
+
+				TextLines.Add(tline);
+				AppendText(Environment.NewLine);
+			}
 		}
 	}
 }

@@ -129,7 +129,7 @@ namespace StarboundAnimator
 		}
 	}
 
-	public class Frames : Asset
+	public class Frames : JsonAsset
 	{
 		public string image;
 
@@ -163,9 +163,9 @@ namespace StarboundAnimator
 			frameList = new Dictionary<string, int[]>();
 		}
 
-		public static Frames LoadFromFile(string path)
+		public new static Frames LoadFromFile(string path)
 		{
-			Frames frame = Asset.LoadFromFile<Frames>(path);
+			Frames frame = JsonAsset.LoadFromFile<Frames>(path);
 			if (frame != null)
 			{
 				// sanity check loaded data

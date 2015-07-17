@@ -53,6 +53,8 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.luaScriptDefinitionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.framesToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
 			this.gridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.addGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,6 +62,8 @@
 			this.convertToListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.allFramesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.scriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.unpackStarboundAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.cmsAssets = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -151,6 +155,9 @@
 			this.imageList1.Images.SetKeyName(7, "framelist.png");
 			this.imageList1.Images.SetKeyName(8, "frames_untested.png");
 			this.imageList1.Images.SetKeyName(9, "animation_untested.png");
+			this.imageList1.Images.SetKeyName(10, "luascript.png");
+			this.imageList1.Images.SetKeyName(11, "luascript_bad.png");
+			this.imageList1.Images.SetKeyName(12, "luascript_untested.png");
 			// 
 			// splitContainer2
 			// 
@@ -268,7 +275,7 @@
 			this.tabScriptEditor.Controls.Add(this.luaScriptBox1);
 			this.tabScriptEditor.Location = new System.Drawing.Point(4, 4);
 			this.tabScriptEditor.Name = "tabScriptEditor";
-			this.tabScriptEditor.Size = new System.Drawing.Size(594, 647);
+			this.tabScriptEditor.Size = new System.Drawing.Size(590, 643);
 			this.tabScriptEditor.TabIndex = 3;
 			this.tabScriptEditor.Text = "Script Editor";
 			this.tabScriptEditor.UseVisualStyleBackColor = true;
@@ -285,7 +292,7 @@
 			this.luaScriptBox1.Location = new System.Drawing.Point(0, 0);
 			this.luaScriptBox1.Margin = new System.Windows.Forms.Padding(0);
 			this.luaScriptBox1.Name = "luaScriptBox1";
-			this.luaScriptBox1.Size = new System.Drawing.Size(594, 647);
+			this.luaScriptBox1.Size = new System.Drawing.Size(590, 643);
 			this.luaScriptBox1.TabIndex = 0;
 			this.luaScriptBox1.Text = "";
 			this.luaScriptBox1.WordWrap = false;
@@ -306,7 +313,9 @@
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.helpToolStripMenuItem,
+            this.editToolStripMenuItem,
             this.framesToolStripMenuItem2,
+            this.scriptToolStripMenuItem,
             this.unpackStarboundAssetsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
@@ -358,6 +367,21 @@
 			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
 			this.aboutToolStripMenuItem.Text = "&About";
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+			// 
+			// editToolStripMenuItem
+			// 
+			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.luaScriptDefinitionsToolStripMenuItem});
+			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+			this.editToolStripMenuItem.Text = "&Edit";
+			// 
+			// luaScriptDefinitionsToolStripMenuItem
+			// 
+			this.luaScriptDefinitionsToolStripMenuItem.Name = "luaScriptDefinitionsToolStripMenuItem";
+			this.luaScriptDefinitionsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+			this.luaScriptDefinitionsToolStripMenuItem.Text = "Lua Script Definitions";
+			this.luaScriptDefinitionsToolStripMenuItem.Click += new System.EventHandler(this.luaScriptDefinitionsToolStripMenuItem_Click);
 			// 
 			// framesToolStripMenuItem2
 			// 
@@ -412,6 +436,21 @@
 			this.allFramesToolStripMenuItem.Name = "allFramesToolStripMenuItem";
 			this.allFramesToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
 			this.allFramesToolStripMenuItem.Text = "All Frames";
+			// 
+			// scriptToolStripMenuItem
+			// 
+			this.scriptToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.optionsToolStripMenuItem});
+			this.scriptToolStripMenuItem.Name = "scriptToolStripMenuItem";
+			this.scriptToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+			this.scriptToolStripMenuItem.Text = "Script";
+			this.scriptToolStripMenuItem.Visible = false;
+			// 
+			// optionsToolStripMenuItem
+			// 
+			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+			this.optionsToolStripMenuItem.Text = "Options";
 			// 
 			// unpackStarboundAssetsToolStripMenuItem
 			// 
@@ -641,6 +680,10 @@
 		private System.Windows.Forms.TabPage tabAnimationEditor;
 		private System.Windows.Forms.TabPage tabScriptEditor;
 		private LuaScriptBox luaScriptBox1;
+		private System.Windows.Forms.ToolStripMenuItem scriptToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem luaScriptDefinitionsToolStripMenuItem;
     }
 }
 

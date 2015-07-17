@@ -5,14 +5,14 @@ using Newtonsoft.Json.Serialization;
 
 namespace StarboundAnimator
 {
-	public class Animation : Asset
+	public class Animation : JsonAsset
 	{
 		[NonSerialized]
 		public new const string FileExtension = ".animation";
 
-		public static Animation LoadFromFile(string path)
+		public new static Animation LoadFromFile(string path)
 		{
-			VariantAnimation va = Asset.LoadFromFile<VariantAnimation>(path);
+			VariantAnimation va = JsonAsset.LoadFromFile<VariantAnimation>(path);
 			if (va != null)
 			{
 				if (va.variants > 0)
@@ -22,7 +22,7 @@ namespace StarboundAnimator
 				}
 			}
 
-			ComplexAnimation ca = Asset.LoadFromFile<ComplexAnimation>(path);
+			ComplexAnimation ca = JsonAsset.LoadFromFile<ComplexAnimation>(path);
 			if (ca != null)
 			{
 				// init complex animation stuff

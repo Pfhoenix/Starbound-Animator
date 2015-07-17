@@ -1,11 +1,15 @@
 ﻿TODO :
 
 Lua parsing
+- definition log parsing doesn't account for sub-tables yet
 - need to stub loading globals
-- need a way to know what individual characters are classified as
-  - whitespace (space)
-  - operators
-  - letters and numbers
+- multi-line comment/string coloring isn't working right yet
+  - need a separate TextSymbol for comment end and string end
+
+Right now, tabs are a little confusing
+- are they list of open documents? should they be?
+- does it make sense to have only one of each asset type open at a time?
+- switching between tabs should set the currently visible specialized menu option
 
 EditorPanel needs to be abstracted to then be the parent of :
 - FramesEditorPanel

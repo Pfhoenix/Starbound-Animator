@@ -69,14 +69,14 @@ namespace StarboundAnimator
 		public int WindowHeight;
 		public int ExplorerWidth;
 		public int PropertiesWidth;
-		public string PathToLastProject;
+		public string PathToLastProject = "";
 		// public Color LastCanvasBackgroundColor;
 		public List<CachedAsset> CachedAssets;
-		public string PathToUnpacker;
+		public string PathToUnpacker = "";
+		public string LuaGlobalDefinitionsFile = "";
 
 		public Settings()
         {
-			PathToLastProject = "";
 			CachedAssets = new List<CachedAsset>();
         }
 
