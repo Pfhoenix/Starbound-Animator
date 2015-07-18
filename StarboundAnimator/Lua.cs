@@ -444,62 +444,11 @@ namespace StarboundAnimator
 			return null;
 		}
 
-		//static List<LuaSymbol> Globals = new List<LuaSymbol>();
-		public static List<LuaTable> Globals = new List<LuaTable>();
+		public static LuaGlobalDefinition Globals = new LuaGlobalDefinition();
 
-		public static void SetTestGlobals()
+		public static void SetGlobalsDefinition(string filename)
 		{
-			Globals = new List<LuaTable>()
-			{
-				new LuaTable("string")
-				{
-					Functions = new List<LuaFunction>()
-					{
-						new LuaFunction("len")
-					}
-				},
-				new LuaTable("table")
-				{
-					Functions = new List<LuaFunction>()
-					{
-						//new LuaFunction("len")
-					}
-				},
-				new LuaTable("math")
-				{
-					Functions = new List<LuaFunction>()
-					{
-						new LuaFunction("min"),
-						new LuaFunction("max")
-					}
-				},
-				new LuaTable("world")
-				{
-					Functions = new List<LuaFunction>()
-					{
-						new LuaFunction("stuff")
-					}
-				},
-				new LuaTable("entity")
-				{
-					Functions = new List<LuaFunction>()
-					{
-					}
-				},
-				new LuaTable("tech")
-				{
-					Functions = new List<LuaFunction>()
-					{
-						new LuaFunction("len")
-					}
-				},
-				new LuaTable("mcontroller")
-				{
-					Functions = new List<LuaFunction>()
-					{
-					}
-				}
-			};
+			Globals = LuaGlobalDefinition.Load(filename);
 		}
 	}
 }

@@ -1,0 +1,1184 @@
+<?xml version="1.0"?>
+<LuaGlobalDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>Beta v. Spirited Giraffe - Update 5</Name>
+  <Tables>
+    <LuaTable>
+      <Text>math</Text>
+      <Type>Table</Type>
+      <Variables>
+        <LuaSymbol>
+          <Text>huge</Text>
+          <Type>Variable</Type>
+        </LuaSymbol>
+        <LuaSymbol>
+          <Text>pi</Text>
+          <Type>Variable</Type>
+        </LuaSymbol>
+      </Variables>
+      <Functions>
+        <LuaFunction>
+          <Text>asin</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>cosh</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>frexp</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>abs</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>tan</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>min</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>randomseed</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>acos</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>atan</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>pow</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>random</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>floor</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>ceil</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>modf</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>exp</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>sqrt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>log10</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>cos</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>ldexp</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>tanh</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>log</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>deg</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>fmod</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>max</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>sinh</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rad</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>sin</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>atan2</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>string</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>match</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>sub</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>reverse</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>char</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>byte</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>dump</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rep</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>upper</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>gsub</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>lower</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>len</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>gmatch</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>format</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>find</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>table</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>concat</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>sort</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>unpack</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>remove</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>pack</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>maxn</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>insert</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>world</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>underground</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerSwapItemsNoCombine</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>collisionBlocksAlongLine</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityHealth</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>lightLevel</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>farmableStage</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>resolvePolyCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>magnitude</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>liquidAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerStackItems</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerConsume</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>polyCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerItemApply</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>lineTileCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>spawnLiquid</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>takeItemDrop</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerTakeAll</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>monsterType</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>logInfo</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerItemAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>mod</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>windLevel</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>placeObject</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>placeMaterial</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>timeOfDay</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>objectLineQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>distance</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerAvailable</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>npcQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>placeMod</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityHandItem</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>spawnNpc</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isMonster</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>spawnProjectile</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>getProperty</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>callScriptedEntity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerItemsFitWhere</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>debugText</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerOpen</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityName</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>debugLine</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>objectQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>material</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerAddItems</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>gravity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerItemsCanFit</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerTakeNumItemsAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>damageTiles</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>loungeableOccupied</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rectCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setProperty</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>breathable</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>itemDropQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerClose</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerSize</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerConsumeAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>itemType</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>day</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityHandItemDescriptor</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityLineQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>time</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityUuid</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entitySpecies</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityType</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>spawnMonster</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>playerQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>npcLineQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>tileIsOccupied</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>loungeableQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>pointTileCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>entityExists</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rectTileCollision</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerSwapItems</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isNpc</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>monsterQuery</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerItems</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>destroyLiquid</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>objectConfigParameter</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerTakeAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>spawnItem</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>debugPoint</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>containerPutItemsAt</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>entity</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>entityInSight</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>id</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>closestValidTarget</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>damageTeam</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isValidTarget</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>distanceToEntity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>mcontroller</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>controlRotation</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isNullColliding</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>collisionPoly</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlApproachVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>addMomentum</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setRotation</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlAcceleration</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>walking</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlModifiers</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isCollisionStuck</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>boundBox</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>liquidPercentage</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlJump</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setYVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlParameters</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>collisionBody</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>yPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlApproachYVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>crouching</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlDown</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>position</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlForce</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>velocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>jumping</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlFace</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>isColliding</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>falling</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlApproachXVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlCrouch</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlMove</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>facingDirection</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>movingDirection</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>xPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>flying</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>liquidMovement</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>positionDelta</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setXVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rotation</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>measuredVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>yVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>baseParameters</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>xVelocity</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>liquidId</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlHoldJump</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>onGround</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>translate</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>canJump</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>controlFly</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>running</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+    <LuaTable>
+      <Text>tech</Text>
+      <Type>Table</Type>
+      <Variables />
+      <Functions>
+        <LuaFunction>
+          <Text>setParentState</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setLightPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>aimPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>appliedOffset</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setParentDirectives</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setToolUsageSuppressed</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>playSound</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setFlipped</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>currentRotationAngle</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>consumeTechEnergy</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>currentScale</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>scaleGroup</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setParticleEmitterOffsetRegion</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>rotateGroup</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setAnimationState</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setLightPointAngle</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setPartTag</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setParticleEmitterEmissionRate</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setSoundPool</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setAnimationRate</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>parameter</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>anchorPoint</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setParentOffset</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setGlobalTag</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>animationState</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setLightActive</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>animationStateProperty</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setEffectActive</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setSoundPosition</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setVisible</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>burstParticleEmitter</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>setParticleEmitterActive</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+        <LuaFunction>
+          <Text>hasSound</Text>
+          <Type>Function</Type>
+          <Parameters />
+        </LuaFunction>
+      </Functions>
+    </LuaTable>
+  </Tables>
+</LuaGlobalDefinition>

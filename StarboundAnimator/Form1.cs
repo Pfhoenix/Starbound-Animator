@@ -49,7 +49,6 @@ namespace StarboundAnimator
 				AddAssetPath(ca.Title, ca.Assets, null);
 			}
 
-			Lua.SetTestGlobals();
 			luaScriptBox1.Init();
 
 			// add syntax highlighting colors to Globals.AppSettings?
