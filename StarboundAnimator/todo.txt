@@ -1,8 +1,10 @@
 ﻿TODO :
 
+Lua editing
+- everything
+
 Lua parsing
 - definition log parsing doesn't account for sub-tables yet
-- need to stub loading globals
 - multi-line comment/string coloring isn't working right yet
   - need a separate TextSymbol for comment end and string end
 

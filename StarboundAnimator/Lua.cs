@@ -324,7 +324,7 @@ namespace StarboundAnimator
 				XmlSerializer xml = new XmlSerializer(typeof(LuaGlobalDefinition));
 				string dp = Path.Combine(Globals.AppPath, LuaGlobalDefinitionEditor.DefinitionsPath);
 				Directory.CreateDirectory(dp);
-				FileStream fs = File.OpenWrite(Path.Combine(dp, Name));
+				FileStream fs = File.OpenWrite(Path.Combine(dp, Name + ".xml"));
 				xml.Serialize(fs, this);
 				fs.Flush();
 				fs.Close();

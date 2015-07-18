@@ -205,7 +205,7 @@ namespace StarboundAnimator
 			}
 			catch (Exception e)
 			{
-				MessageBox.Show("Error : " + e.Message, "Syntax highlighting loading error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				//MessageBox.Show("Error : " + e.Message, "Syntax highlighting loading error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return null;
 			}
 		}

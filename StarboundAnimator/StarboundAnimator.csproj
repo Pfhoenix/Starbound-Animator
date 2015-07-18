@@ -210,9 +210,9 @@
       <DependentUpon>UnpackForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="definitions\Beta v. Spirited Giraffe - Update 5">
+    <Content Include="definitions\Beta v. Spirited Giraffe - Update 5.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
